@@ -1,6 +1,5 @@
-const SUPABASE_URL = "https://cfqmubtagpgjjtptlpar.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmcW11YnRhZ3Bnamp0cHRscGFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTU1ODUsImV4cCI6MjA5NDA3MTU4NX0.lvqq_4cvve_TQnRbsZ6skD92ErrrSajcqjCY6-14tDA";
-
+const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHdzdXptcnZtZ3VxcWxqaXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3MDYsImV4cCI6MjA5NDA2OTcwNn0._kRUs0cqkGMu2bffoE4mo9SOIAkdqOA0JRVCgONVf00";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 window.testSupabaseWrite = async function testSupabaseWrite() {
   const testId = "TEST-" + Date.now();
@@ -353,9 +352,9 @@ function showPage(name) {
   document.getElementById("page-" + name).classList.add("active");
   document
     .querySelectorAll(".nav-item")
-    [["dashboard", "drivers", "vehicles"].indexOf(name)].classList.add(
-      "active"
-    );
+  [["dashboard", "drivers", "vehicles"].indexOf(name)].classList.add(
+    "active"
+  );
   if (name === "dashboard") renderDashboard();
   if (name === "drivers") renderDrivers();
   if (name === "vehicles") renderVehicles();
@@ -403,9 +402,8 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-label">Total Drivers</div>
       <div class="stat-val c-total">${drivers.length}</div>
-      <span class="stat-badge c-green">${
-        drivers.length - dExpired - dWarn
-      } valid</span>
+      <span class="stat-badge c-green">${drivers.length - dExpired - dWarn
+    } valid</span>
     </div>
     <div class="stat-card">
       <div class="stat-label">Driver Issues</div>
@@ -415,9 +413,8 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-label">Total Vehicles</div>
       <div class="stat-val c-total">${vehicles.length}</div>
-      <span class="stat-badge c-green">${
-        vehicles.length - vExpired - vWarn
-      } valid</span>
+      <span class="stat-badge c-green">${vehicles.length - vExpired - vWarn
+    } valid</span>
     </div>
     <div class="stat-card">
       <div class="stat-label">Vehicle Issues</div>
@@ -485,20 +482,17 @@ function renderDashboard() {
     html += "</div>";
   }
   if (expiring.length > 0) {
-    html += `<div class="dash-section-title" style="color:var(--amber);margin-top:${
-      expired.length ? 20 : 0
-    }px">🟡 Expiring Within 60 Days (${
-      expiring.length
-    })</div><div class="dash-alert-grid">`;
+    html += `<div class="dash-section-title" style="color:var(--amber);margin-top:${expired.length ? 20 : 0
+      }px">🟡 Expiring Within 60 Days (${expiring.length
+      })</div><div class="dash-alert-grid">`;
     expiring.forEach((a) => {
       html += `<div class="dash-alert-card expiring">
         <div class="dash-alert-icon"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
         <div>
           <div class="dash-alert-name">${a.name}</div>
           <div class="dash-alert-doc">${a.category} · ${a.doc}</div>
-          <div class="dash-alert-date">Expires ${fmtDate(a.date)} — <strong>${
-        a.days
-      } days left</strong></div>
+          <div class="dash-alert-date">Expires ${fmtDate(a.date)} — <strong>${a.days
+        } days left</strong></div>
         </div>
       </div>`;
     });
@@ -548,21 +542,18 @@ function renderDrivers() {
       ws === "expired"
         ? "row-expired"
         : ws === "expiring"
-        ? "row-expiring"
-        : "";
+          ? "row-expiring"
+          : "";
     const ri = allD.findIndex((x) => x.id === d.id);
     html += `<tr class="${rc}">
-      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${
-        d.id || "—"
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.id || "—"
       }</span></td>
       <td>
         <div style="font-weight:500">${d.name}</div>
-        <div style="font-size:11px;color:var(--text3)">${d.nationality || ""} ${
-      d.dept ? "· " + d.dept : ""
-    }</div>
+        <div style="font-size:11px;color:var(--text3)">${d.nationality || ""} ${d.dept ? "· " + d.dept : ""
+      }</div>
       </td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${
-        d.iqamaid || "—"
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.iqamaid || "—"
       }</td>
       ${DRIVER_FIELDS.map((f) => {
         const days = daysUntil(d[f]);
@@ -623,18 +614,16 @@ function renderVehicles() {
       ws === "expired"
         ? "row-expired"
         : ws === "expiring"
-        ? "row-expiring"
-        : "";
+          ? "row-expiring"
+          : "";
     const ri = allV.findIndex((x) => x.id === v.id);
     html += `<tr class="${rc}">
-      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${
-        v.id || "—"
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.id || "—"
       }</span></td>
       <td>
         <div style="font-weight:500">${v.plate}</div>
-        <div style="font-size:11px;color:var(--text3)">${v.make || ""} ${
-      v.year ? "· " + v.year : ""
-    } ${v.color ? "· " + v.color : ""}</div>
+        <div style="font-size:11px;color:var(--text3)">${v.make || ""} ${v.year ? "· " + v.year : ""
+      } ${v.color ? "· " + v.color : ""}</div>
       </td>
       <td style="color:var(--text2);font-size:13px">${v.driver || "—"}</td>
       ${VEHICLE_FIELDS.map((f) => {
@@ -643,10 +632,9 @@ function renderVehicles() {
           v[f]
         )}</div></td>`;
       }).join("")}
-      <td>${
-        v.gps === "On"
-          ? '<span class="badge ok">On</span>'
-          : v.gps === "Off"
+      <td>${v.gps === "On"
+        ? '<span class="badge ok">On</span>'
+        : v.gps === "Off"
           ? '<span class="badge expired">Off</span>'
           : '<span class="badge na">N/A</span>'
       }</td>
