@@ -1,220 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Qima Al Tafawuq – Transport Management System</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qima Al Tafawuq – Transport Management System</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- KEEP ALL YOUR HTML BODY CONTENT HERE -->
-<!-- START FROM: -->
-<!-- <div id="login-screen"> -->
-    <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon">
-        <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+  <!-- KEEP ALL YOUR HTML BODY CONTENT HERE -->
+  <!-- START FROM: -->
+  <!-- <div id="login-screen"> -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+          </svg>
+        </div>
+        <div>
+          <div class="login-logo-name">Qima Al Tafawuq</div>
+          <div class="login-logo-sub">Transport Management System</div>
+        </div>
       </div>
-      <div>
-        <div class="login-logo-name">Qima Al Tafawuq</div>
-        <div class="login-logo-sub">Transport Management System</div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-subtitle">Sign in to access your fleet dashboard</div>
+      <div class="login-error" id="login-error">Incorrect username or password.</div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
       </div>
-    </div>
-    <div class="login-title">Welcome back</div>
-    <div class="login-subtitle">Sign in to access your fleet dashboard</div>
-    <div class="login-error" id="login-error">Incorrect username or password.</div>
-    <div class="form-group">
-      <label>Username</label>
-      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
-    </div>
-    <button class="btn-login" onclick="doLogin()">Sign In</button>
-    <div class="login-hint">Default: <strong>admin</strong> / <strong>admin123</strong></div>
-  </div>
-</div>
-
-<!-- ══════════ APP ══════════ -->
-<div id="app">
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-name">Qima Al Tafawuq</div>
-      <div class="sidebar-logo-sub">Transport Management</div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showPage('dashboard')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-        Dashboard
-        <span class="nav-badge" id="alert-badge" style="display:none">0</span>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
       </div>
-      <div class="nav-item" onclick="showPage('drivers')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-        Drivers
-      </div>
-      <div class="nav-item" onclick="showPage('vehicles')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
-        Vehicles
-      </div>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="sidebar-date" id="sidebar-date"></div>
-      <button class="logout-btn" onclick="doLogout()">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-        Sign out
-      </button>
+      <button class="btn-login" onclick="doLogin()">Sign In</button>
+      <div class="login-hint">Default: <strong>admin</strong> / <strong>admin123</strong></div>
     </div>
   </div>
 
-  <main class="main">
-
-    <!-- DASHBOARD -->
-    <div id="page-dashboard" class="page active">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Dashboard</div>
-          <div class="page-sub" id="dash-date"></div>
-        </div>
+  <!-- ══════════ APP ══════════ -->
+  <div id="app">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-name">Qima Al Tafawuq</div>
+        <div class="sidebar-logo-sub">Transport Management</div>
       </div>
-      <div class="stats-grid" id="dash-stats"></div>
-      <div id="dash-alerts"></div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+          </svg>
+          Dashboard
+          <span class="nav-badge" id="alert-badge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="showPage('drivers')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+          </svg>
+          Drivers
+        </div>
+        <div class="nav-item" onclick="showPage('vehicles')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+          </svg>
+          Vehicles
+        </div>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-date" id="sidebar-date"></div>
+        <button class="logout-btn" onclick="doLogout()">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+          </svg>
+          Sign out
+        </button>
+      </div>
     </div>
 
-    <!-- DRIVERS -->
-    <div id="page-drivers" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Drivers</div>
-          <div class="page-sub">Manage driver documents and expiry dates</div>
-        </div>
-      </div>
-      <div class="table-card">
-        <div class="table-toolbar">
-          <input class="table-search" type="text" placeholder="Search by name, ID, nationality…" oninput="renderDrivers()" id="driver-search">
-          <button class="btn-add" onclick="openDriverModal()">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add Driver
-          </button>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Expired</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>≤ 30 days</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Valid</div>
+    <main class="main">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub" id="dash-date"></div>
           </div>
         </div>
-        <div class="table-wrap" id="drivers-table"></div>
+        <div class="stats-grid" id="dash-stats"></div>
+        <div id="dash-alerts"></div>
       </div>
-    </div>
 
-    <!-- VEHICLES -->
-    <div id="page-vehicles" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Vehicles</div>
-          <div class="page-sub">Manage vehicle documents and expiry dates</div>
-        </div>
-      </div>
-      <div class="table-card">
-        <div class="table-toolbar">
-          <input class="table-search" type="text" placeholder="Search by plate, driver, make…" oninput="renderVehicles()" id="vehicle-search">
-          <button class="btn-add" onclick="openVehicleModal()">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add Vehicle
-          </button>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Expired</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>≤ 30 days</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Valid</div>
+      <!-- DRIVERS -->
+      <div id="page-drivers" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Drivers</div>
+            <div class="page-sub">Manage driver documents and expiry dates</div>
           </div>
         </div>
-        <div class="table-wrap" id="vehicles-table"></div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Search by name, ID, nationality…"
+              oninput="renderDrivers()" id="driver-search">
+            <button class="btn-add" onclick="openDriverModal()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Driver
+            </button>
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--red)"></div>Expired
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--amber)"></div>≤ 30 days
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--green)"></div>Valid
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" id="drivers-table"></div>
+        </div>
+      </div>
+
+      <!-- VEHICLES -->
+      <div id="page-vehicles" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Vehicles</div>
+            <div class="page-sub">Manage vehicle documents and expiry dates</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Search by plate, driver, make…"
+              oninput="renderVehicles()" id="vehicle-search">
+            <button class="btn-add" onclick="openVehicleModal()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Vehicle
+            </button>
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--red)"></div>Expired
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--amber)"></div>≤ 30 days
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--green)"></div>Valid
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" id="vehicles-table"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══════════ DRIVER MODAL ══════════ -->
+  <div class="modal-overlay" id="driver-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="driver-modal-title">Add Driver</div>
+        <button class="modal-close" onclick="closeModal('driver-modal')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="form-grid">
+        <div class="modal-group full"><label>Full Name *</label><input id="d-name" placeholder="Driver full name"></div>
+        <div class="modal-group"><label>Employee ID</label><input id="d-id" placeholder="e.g. D007"></div>
+        <div class="modal-group"><label>Iqama ID No.</label><input id="d-iqamaid" placeholder="e.g. 2456789012"></div>
+        <div class="modal-group"><label>Phone Number</label><input id="d-phone" placeholder="+966 5x xxx xxxx"></div>
+        <div class="modal-group"><label>Nationality</label><input id="d-nationality" placeholder="e.g. Saudi, Indian">
+        </div>
+        <div class="modal-group"><label>Department</label><input id="d-dept" placeholder="e.g. Operations"></div>
+
+        <div class="modal-section-title">Document Expiry Dates</div>
+
+        <div class="modal-group"><label>Iqama Expiry</label><input type="date" id="d-iqama"></div>
+        <div class="modal-group"><label>Work Permit Expiry</label><input type="date" id="d-workpermit"></div>
+        <div class="modal-group"><label>Driving Licence Expiry</label><input type="date" id="d-license"></div>
+        <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="d-insurance"></div>
+        <div class="modal-group"><label>Driver Card Expiry</label><input type="date" id="d-drivercard"></div>
+        <div class="modal-group"><label>Ajeer Expiry</label><input type="date" id="d-ajeer"></div>
+        <div class="modal-group"><label>Passport Expiry</label><input type="date" id="d-passport"></div>
+        <div class="modal-group"><label>Medical Certificate Expiry</label><input type="date" id="d-medical"></div>
+        <div class="modal-group"><label>Visa Expiry</label><input type="date" id="d-visa"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('driver-modal')">Cancel</button>
+        <button class="btn-save" onclick="saveDriver()">Save Driver</button>
       </div>
     </div>
-
-  </main>
-</div>
-
-<!-- ══════════ DRIVER MODAL ══════════ -->
-<div class="modal-overlay" id="driver-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="driver-modal-title">Add Driver</div>
-      <button class="modal-close" onclick="closeModal('driver-modal')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      </button>
-    </div>
-    <div class="form-grid">
-      <div class="modal-group full"><label>Full Name *</label><input id="d-name" placeholder="Driver full name"></div>
-      <div class="modal-group"><label>Employee ID</label><input id="d-id" placeholder="e.g. D007"></div>
-      <div class="modal-group"><label>Iqama ID No.</label><input id="d-iqamaid" placeholder="e.g. 2456789012"></div>
-      <div class="modal-group"><label>Phone Number</label><input id="d-phone" placeholder="+966 5x xxx xxxx"></div>
-      <div class="modal-group"><label>Nationality</label><input id="d-nationality" placeholder="e.g. Saudi, Indian"></div>
-      <div class="modal-group"><label>Department</label><input id="d-dept" placeholder="e.g. Operations"></div>
-
-      <div class="modal-section-title">Document Expiry Dates</div>
-
-      <div class="modal-group"><label>Iqama Expiry</label><input type="date" id="d-iqama"></div>
-      <div class="modal-group"><label>Work Permit Expiry</label><input type="date" id="d-workpermit"></div>
-      <div class="modal-group"><label>Driving Licence Expiry</label><input type="date" id="d-license"></div>
-      <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="d-insurance"></div>
-      <div class="modal-group"><label>Driver Card Expiry</label><input type="date" id="d-drivercard"></div>
-      <div class="modal-group"><label>Ajeer Expiry</label><input type="date" id="d-ajeer"></div>
-      <div class="modal-group"><label>Passport Expiry</label><input type="date" id="d-passport"></div>
-      <div class="modal-group"><label>Medical Certificate Expiry</label><input type="date" id="d-medical"></div>
-      <div class="modal-group"><label>Visa Expiry</label><input type="date" id="d-visa"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('driver-modal')">Cancel</button>
-      <button class="btn-save" onclick="saveDriver()">Save Driver</button>
-    </div>
   </div>
-</div>
 
-<!-- ══════════ VEHICLE MODAL ══════════ -->
-<div class="modal-overlay" id="vehicle-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="vehicle-modal-title">Add Vehicle</div>
-      <button class="modal-close" onclick="closeModal('vehicle-modal')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      </button>
-    </div>
-    <div class="form-grid">
-      <div class="modal-group"><label>Vehicle ID</label><input id="v-id" placeholder="e.g. V006"></div>
-      <div class="modal-group"><label>Plate Number *</label><input id="v-plate" placeholder="ABC-1234"></div>
-      <div class="modal-group"><label>Make / Model</label><input id="v-make" placeholder="Toyota Hilux"></div>
-      <div class="modal-group"><label>Year</label><input id="v-year" placeholder="2022"></div>
-      <div class="modal-group"><label>Color</label><input id="v-color" placeholder="White"></div>
-      <div class="modal-group"><label>Vehicle Type</label>
-        <select id="v-type">
-          <option value="">Select type</option>
-          <option>Sedan</option><option>SUV</option><option>Van</option>
-          <option>Truck</option><option>Bus</option><option>Pickup</option><option>Heavy Equipment</option>
-        </select>
+  <!-- ══════════ VEHICLE MODAL ══════════ -->
+  <div class="modal-overlay" id="vehicle-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="vehicle-modal-title">Add Vehicle</div>
+        <button class="modal-close" onclick="closeModal('vehicle-modal')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
       </div>
-      <div class="modal-group full"><label>Assigned Driver</label><input id="v-driver" placeholder="Driver name"></div>
+      <div class="form-grid">
+        <div class="modal-group"><label>Vehicle ID</label><input id="v-id" placeholder="e.g. V006"></div>
+        <div class="modal-group"><label>Plate Number *</label><input id="v-plate" placeholder="ABC-1234"></div>
+        <div class="modal-group"><label>Make / Model</label><input id="v-make" placeholder="Toyota Hilux"></div>
+        <div class="modal-group"><label>Year</label><input id="v-year" placeholder="2022"></div>
+        <div class="modal-group"><label>Color</label><input id="v-color" placeholder="White"></div>
+        <div class="modal-group"><label>Vehicle Type</label>
+          <select id="v-type">
+            <option value="">Select type</option>
+            <option>Sedan</option>
+            <option>SUV</option>
+            <option>Van</option>
+            <option>Truck</option>
+            <option>Bus</option>
+            <option>Pickup</option>
+            <option>Heavy Equipment</option>
+          </select>
+        </div>
+        <div class="modal-group full"><label>Assigned Driver</label><input id="v-driver" placeholder="Driver name">
+        </div>
 
-      <div class="modal-section-title">Document Expiry Dates</div>
+        <div class="modal-section-title">Document Expiry Dates</div>
 
-      <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="v-insurance"></div>
-      <div class="modal-group"><label>Ishtamara Expiry</label><input type="date" id="v-ishtamara"></div>
-      <div class="modal-group"><label>Tafweed Expiry</label><input type="date" id="v-tafweed"></div>
-      <div class="modal-group"><label>Mulkiya Expiry</label><input type="date" id="v-mulkiya"></div>
-      <div class="modal-group"><label>Inspection Expiry</label><input type="date" id="v-inspection"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('vehicle-modal')">Cancel</button>
-      <button class="btn-save" onclick="saveVehicle()">Save Vehicle</button>
+        <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="v-insurance"></div>
+        <div class="modal-group"><label>Ishtamara Expiry</label><input type="date" id="v-ishtamara"></div>
+        <div class="modal-group"><label>Tafweed Expiry</label><input type="date" id="v-tafweed"></div>
+        <div class="modal-group"><label>Mulkiya Expiry</label><input type="date" id="v-mulkiya"></div>
+        <div class="modal-group"><label>Maintenance Expiry</label><input type="date" id="v-maintenance"></div>
+        <div class="modal-group"><label>GPS Status</label>
+          <select id="v-gps">
+            <option value="">Select status</option>
+            <option value="On">On</option>
+            <option value="Off">Off</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('vehicle-modal')">Cancel</button>
+        <button class="btn-save" onclick="saveVehicle()">Save Vehicle</button>
+      </div>
     </div>
   </div>
-</div>
-<!-- UNTIL: -->
-<!-- </div> BEFORE <script> -->
+  <!-- UNTIL: -->
+  <!-- </div> BEFORE <script> -->
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
