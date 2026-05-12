@@ -76,6 +76,13 @@
           </svg>
           Vehicles
         </div>
+        <div class="nav-item" onclick="showPage('employees')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+          </svg>
+          Employees
+        </div>
       </nav>
       <div class="sidebar-bottom">
         <div class="sidebar-date" id="sidebar-date"></div>
@@ -168,6 +175,40 @@
             </div>
           </div>
           <div class="table-wrap" id="vehicles-table"></div>
+        </div>
+      </div>
+
+      <!-- EMPLOYEES -->
+      <div id="page-employees" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Employees</div>
+            <div class="page-sub">Manage employee documents and expiry dates</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Search by name, Iqama, company, occupation…"
+              oninput="renderEmployees()" id="employee-search">
+            <button class="btn-add" onclick="openEmployeeModal()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Employee
+            </button>
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--red)"></div>Expired
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--amber)"></div>≤ 30 days
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--green)"></div>Valid
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" id="employees-table"></div>
         </div>
       </div>
 
@@ -265,6 +306,47 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('vehicle-modal')">Cancel</button>
         <button class="btn-save" onclick="saveVehicle()">Save Vehicle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EMPLOYEE MODAL ══════════ -->
+  <div class="modal-overlay" id="employee-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="employee-modal-title">Add Employee</div>
+        <button class="modal-close" onclick="closeModal('employee-modal')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="form-grid">
+        <div class="modal-group full"><label>Full Name *</label><input id="e-name" placeholder="Employee full name">
+        </div>
+        <div class="modal-group"><label>Mobile Number</label><input id="e-mobile" placeholder="+966 5x xxx xxxx"></div>
+        <div class="modal-group"><label>Date of Birth</label><input type="date" id="e-dateofbirth"></div>
+        <div class="modal-group"><label>Iqama No.</label><input id="e-iqama" placeholder="e.g. 2456789012"></div>
+        <div class="modal-group"><label>Company</label><input id="e-company" placeholder="Company name"></div>
+        <div class="modal-group full"><label>Occupation</label><input id="e-occupation"
+            placeholder="e.g. Technician, Supervisor"></div>
+
+        <div class="modal-section-title">Employment Dates</div>
+
+        <div class="modal-group"><label>Date of Contract</label><input type="date" id="e-contractstart"></div>
+        <div class="modal-group"><label>End of Contract</label><input type="date" id="e-contractend"></div>
+
+        <div class="modal-section-title">Document Expiry Dates</div>
+
+        <div class="modal-group"><label>Iqama Expiry</label><input type="date" id="e-iqamaexpiry"></div>
+        <div class="modal-group"><label>Medical Insurance Expiry</label><input type="date" id="e-insurance"></div>
+        <div class="modal-group"><label>Ajeer Expiry</label><input type="date" id="e-ajeer"></div>
+        <div class="modal-group"><label>Passport Expiry</label><input type="date" id="e-passport"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('employee-modal')">Cancel</button>
+        <button class="btn-save" onclick="saveEmployee()">Save Employee</button>
       </div>
     </div>
   </div>

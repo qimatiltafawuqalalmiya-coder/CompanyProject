@@ -209,6 +209,7 @@ const DEFAULT_VEHICLES = [
 
 let driversCache = [];
 let vehiclesCache = [];
+let employeesCache = [];
 let isSaving = false;
 
 function cleanRecord(record) {
@@ -340,6 +341,14 @@ const VEHICLE_LABELS = {
   mulkiya: "Mulkiya",
   maintenance: "Maintenance",
 };
+const EMPLOYEE_FIELDS = ["iqamaexpiry", "insurance", "ajeer", "passport", "contractend"];
+const EMPLOYEE_LABELS = {
+  iqamaexpiry: "Iqama",
+  insurance: "Medical Insurance",
+  ajeer: "Ajeer",
+  passport: "Passport",
+  contractend: "End of Contract",
+};
 
 // ══════════ NAVIGATION ══════════
 function showPage(name) {
@@ -352,18 +361,20 @@ function showPage(name) {
   document.getElementById("page-" + name).classList.add("active");
   document
     .querySelectorAll(".nav-item")
-  [["dashboard", "drivers", "vehicles"].indexOf(name)].classList.add(
+  [["dashboard", "drivers", "vehicles", "employees"].indexOf(name)].classList.add(
     "active"
   );
   if (name === "dashboard") renderDashboard();
   if (name === "drivers") renderDrivers();
   if (name === "vehicles") renderVehicles();
+  if (name === "employees") renderEmployees();
 }
 
 // ══════════ DASHBOARD ══════════
 function renderDashboard() {
   const drivers = loadDrivers();
   const vehicles = loadVehicles();
+  const employees = loadEmployees();
   const now = new Date();
   document.getElementById("dash-date").textContent = now.toLocaleDateString(
     "en-US",
@@ -388,8 +399,17 @@ function renderDashboard() {
   const vWarn = vehicles.filter(
     (v) => worstStatus(v, VEHICLE_FIELDS) === "expiring"
   ).length;
+  const eExpired = employees.filter((e) =>
+    EMPLOYEE_FIELDS.some((f) => {
+      const days = daysUntil(e[f]);
+      return days !== null && days < 0;
+    })
+  ).length;
+  const eWarn = employees.filter(
+    (e) => worstStatus(e, EMPLOYEE_FIELDS) === "expiring"
+  ).length;
 
-  const totalAlerts = dExpired + dWarn + vExpired + vWarn;
+  const totalAlerts = dExpired + dWarn + vExpired + vWarn + eExpired + eWarn;
   const badge = document.getElementById("alert-badge");
   if (totalAlerts > 0) {
     badge.style.display = "";
@@ -402,8 +422,7 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-label">Total Drivers</div>
       <div class="stat-val c-total">${drivers.length}</div>
-      <span class="stat-badge c-green">${drivers.length - dExpired - dWarn
-    } valid</span>
+      <span class="stat-badge c-green">${drivers.length - dExpired - dWarn} valid</span>
     </div>
     <div class="stat-card">
       <div class="stat-label">Driver Issues</div>
@@ -413,13 +432,22 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-label">Total Vehicles</div>
       <div class="stat-val c-total">${vehicles.length}</div>
-      <span class="stat-badge c-green">${vehicles.length - vExpired - vWarn
-    } valid</span>
+      <span class="stat-badge c-green">${vehicles.length - vExpired - vWarn} valid</span>
     </div>
     <div class="stat-card">
       <div class="stat-label">Vehicle Issues</div>
       <div class="stat-val c-amber">${vExpired + vWarn}</div>
       <span class="stat-badge c-amber">${vExpired} expired · ${vWarn} expiring</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Employees</div>
+      <div class="stat-val c-total">${employees.length}</div>
+      <span class="stat-badge c-green">${employees.length - eExpired - eWarn} valid</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Employee Issues</div>
+      <div class="stat-val c-red">${eExpired + eWarn}</div>
+      <span class="stat-badge c-red">${eExpired} expired · ${eWarn} expiring</span>
     </div>
   `;
 
@@ -451,6 +479,21 @@ function renderDashboard() {
           date: v[f],
           days,
           category: "Vehicle",
+        });
+      }
+    });
+  });
+  employees.forEach((e) => {
+    EMPLOYEE_FIELDS.forEach((f) => {
+      const days = daysUntil(e[f]);
+      if (days !== null && days < 60) {
+        alerts.push({
+          type: days < 0 ? "expired" : "expiring",
+          name: e.name,
+          doc: EMPLOYEE_LABELS[f],
+          date: e[f],
+          days,
+          category: "Employee",
         });
       }
     });
@@ -842,6 +885,181 @@ document.querySelectorAll(".modal-overlay").forEach((m) => {
   });
 });
 
+// ══════════ EMPLOYEES TABLE ══════════
+function loadEmployees() {
+  return employeesCache;
+}
+
+async function refreshEmployees() {
+  const { data, error } = await supabaseClient.from("employees").select("*").order("id");
+  if (error) {
+    showDbError("Could not load employees from Supabase", error);
+    return;
+  }
+  employeesCache = data || [];
+}
+
+function renderEmployees() {
+  const q = (
+    document.getElementById("employee-search")?.value || ""
+  ).toLowerCase();
+  const employees = loadEmployees().filter(
+    (e) =>
+      (e.name || "").toLowerCase().includes(q) ||
+      (e.iqama || "").includes(q) ||
+      (e.occupation || "").toLowerCase().includes(q) ||
+      (e.company || "").toLowerCase().includes(q) ||
+      (e.mobile || "").includes(q)
+  );
+  let html = `<table><thead><tr>
+    <th>Name</th>
+    <th>Mobile Number</th>
+    <th>Date of Birth</th>
+    <th>Iqama No.</th>
+    <th>Company</th>
+    <th>Occupation</th>
+    <th>Date of Contract</th>
+    <th>End of Contract</th>
+    <th>Iqama Expiry</th>
+    <th>Medical Insurance</th>
+    <th>Ajeer</th>
+    <th>Passport Expiry</th>
+    <th>Actions</th>
+  </tr></thead><tbody>`;
+  if (employees.length === 0) {
+    html += `<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
+    html += "</tbody></table>";
+    document.getElementById("employees-table").innerHTML = html;
+    return;
+  }
+
+  const allE = loadEmployees();
+  employees.forEach((e) => {
+    const ws = worstStatus(e, EMPLOYEE_FIELDS);
+    const rc =
+      ws === "expired"
+        ? "row-expired"
+        : ws === "expiring"
+          ? "row-expiring"
+          : "";
+    const ri = allE.findIndex((x) => x.id === e.id);
+    html += `<tr class="${rc}">
+      <td>
+        <div style="font-weight:500">${e.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${e.occupation || ""}</div>
+      </td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.mobile || "—"}</td>
+      <td><div class="date-sub">${fmtDate(e.dateofbirth)}</div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.iqama || "—"}</td>
+      <td style="color:var(--text2);font-size:13px">${e.company || "—"}</td>
+      <td style="color:var(--text2);font-size:13px">${e.occupation || "—"}</td>
+      <td><div class="date-sub">${fmtDate(e.contractstart)}</div></td>
+      <td>${statusLabel(daysUntil(e.contractend))}<div class="date-sub">${fmtDate(e.contractend)}</div></td>
+      <td>${statusLabel(daysUntil(e.iqamaexpiry))}<div class="date-sub">${fmtDate(e.iqamaexpiry)}</div></td>
+      <td>${statusLabel(daysUntil(e.insurance))}<div class="date-sub">${fmtDate(e.insurance)}</div></td>
+      <td>${statusLabel(daysUntil(e.ajeer))}<div class="date-sub">${fmtDate(e.ajeer)}</div></td>
+      <td>${statusLabel(daysUntil(e.passport))}<div class="date-sub">${fmtDate(e.passport)}</div></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-icon edit" onclick="editEmployee(${ri})" title="Edit">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button class="btn-icon del" onclick="deleteEmployee(${ri})" title="Delete">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  document.getElementById("employees-table").innerHTML = html;
+}
+
+// ══════════ EMPLOYEE MODAL ══════════
+let editEmployeeIdx = -1;
+function openEmployeeModal(idx = -1) {
+  editEmployeeIdx = idx;
+  const employees = loadEmployees();
+  const e = idx >= 0 ? employees[idx] : {};
+  document.getElementById("employee-modal-title").textContent =
+    idx >= 0 ? "Edit Employee" : "Add Employee";
+  document.getElementById("e-name").value = e.name || "";
+  document.getElementById("e-mobile").value = e.mobile || "";
+  document.getElementById("e-dateofbirth").value = e.dateofbirth || "";
+  document.getElementById("e-iqama").value = e.iqama || "";
+  document.getElementById("e-company").value = e.company || "";
+  document.getElementById("e-occupation").value = e.occupation || "";
+  document.getElementById("e-contractstart").value = e.contractstart || "";
+  document.getElementById("e-contractend").value = e.contractend || "";
+  document.getElementById("e-iqamaexpiry").value = e.iqamaexpiry || "";
+  document.getElementById("e-insurance").value = e.insurance || "";
+  document.getElementById("e-ajeer").value = e.ajeer || "";
+  document.getElementById("e-passport").value = e.passport || "";
+  document.getElementById("employee-modal").classList.add("open");
+}
+function editEmployee(idx) {
+  openEmployeeModal(idx);
+}
+async function deleteEmployee(idx) {
+  if (!confirm("Remove this employee?")) return;
+  const employee = employeesCache[idx];
+  if (!employee) return;
+  const { error } = await supabaseClient.from("employees").delete().eq("id", employee.id);
+  if (error) {
+    showDbError("Could not delete employee from Supabase", error);
+    return;
+  }
+  await refreshEmployees();
+  renderEmployees();
+  renderDashboard();
+}
+async function saveEmployee() {
+  if (isSaving) return;
+  const name = document.getElementById("e-name").value.trim();
+  if (!name) {
+    alert("Employee name is required.");
+    return;
+  }
+  isSaving = true;
+  try {
+    const employees = loadEmployees();
+    const rec = {
+      id:
+        editEmployeeIdx >= 0
+          ? employees[editEmployeeIdx].id
+          : "E" + String(employees.length + 1).padStart(3, "0"),
+      name,
+      mobile: document.getElementById("e-mobile").value.trim(),
+      dateofbirth: document.getElementById("e-dateofbirth").value,
+      iqama: document.getElementById("e-iqama").value.trim(),
+      company: document.getElementById("e-company").value.trim(),
+      occupation: document.getElementById("e-occupation").value.trim(),
+      contractstart: document.getElementById("e-contractstart").value,
+      contractend: document.getElementById("e-contractend").value,
+      iqamaexpiry: document.getElementById("e-iqamaexpiry").value,
+      insurance: document.getElementById("e-insurance").value,
+      ajeer: document.getElementById("e-ajeer").value,
+      passport: document.getElementById("e-passport").value,
+    };
+    const query = editEmployeeIdx >= 0
+      ? supabaseClient.from("employees").update(cleanRecord(rec)).eq("id", rec.id)
+      : supabaseClient.from("employees").insert(cleanRecord(rec));
+    const { error } = await query;
+    if (error) {
+      showDbError("Could not save employee to Supabase", error);
+      return;
+    }
+    await refreshEmployees();
+    closeModal("employee-modal");
+    renderEmployees();
+    renderDashboard();
+  } catch (error) {
+    showDbError("Could not save employee to Supabase", error);
+  } finally {
+    isSaving = false;
+  }
+}
+
 // ══════════ INIT ══════════
 async function initApp() {
   const now = new Date();
@@ -851,6 +1069,7 @@ async function initApp() {
   );
   await refreshDrivers();
   await refreshVehicles();
+  await refreshEmployees();
   await seedDefaultsIfEmpty();
   renderDashboard();
 }

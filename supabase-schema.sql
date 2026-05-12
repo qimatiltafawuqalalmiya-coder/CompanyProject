@@ -32,6 +32,29 @@ create table if not exists vehicles (
   gps text
 );
 
+create table if not exists employees (
+  id text primary key,
+  name text not null,
+  mobile text,
+  dateofbirth date,
+  iqama text,
+  company text,
+  occupation text,
+  contractstart date,
+  contractend date,
+  iqamaexpiry date,
+  insurance date,
+  ajeer date,
+  passport date
+);
+
+alter table employees add column if not exists dateofbirth date;
+alter table employees add column if not exists company text;
+alter table employees add column if not exists contractstart date;
+alter table employees add column if not exists contractend date;
+alter table employees add column if not exists ajeer date;
+
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on drivers to anon, authenticated;
 grant select, insert, update, delete on vehicles to anon, authenticated;
+grant select, insert, update, delete on employees to anon, authenticated;
