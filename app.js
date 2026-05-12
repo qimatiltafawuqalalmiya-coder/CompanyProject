@@ -1161,7 +1161,7 @@ function renderViolationTable(kind) {
     <th>Date</th>
     <th>Amount</th>
     <th>Status</th>
-    <th>Notes</th>
+    <th>Accident Details</th>
     <th>Actions</th>
   </tr></thead><tbody>`;
 
