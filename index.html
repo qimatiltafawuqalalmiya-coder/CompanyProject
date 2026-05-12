@@ -83,6 +83,19 @@
           </svg>
           Employees
         </div>
+        <div class="nav-item" onclick="showPage('maroor-violations')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+          </svg>
+          Maroor Violation
+        </div>
+        <div class="nav-item" onclick="showPage('efaa-violations')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+          Efaa Violation
+        </div>
       </nav>
       <div class="sidebar-bottom">
         <div class="sidebar-date" id="sidebar-date"></div>
@@ -209,6 +222,52 @@
             </div>
           </div>
           <div class="table-wrap" id="employees-table"></div>
+        </div>
+      </div>
+
+      <!-- MAROOR VIOLATIONS -->
+      <div id="page-maroor-violations" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Maroor Violation</div>
+            <div class="page-sub">Manage Maroor traffic violation records</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
+              oninput="renderMaroorViolations()" id="maroor-violation-search">
+            <button class="btn-add" onclick="openMaroorViolationModal()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Violation
+            </button>
+          </div>
+          <div class="table-wrap" id="maroor-violations-table"></div>
+        </div>
+      </div>
+
+      <!-- EFAA VIOLATIONS -->
+      <div id="page-efaa-violations" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Efaa Violation</div>
+            <div class="page-sub">Manage Efaa violation records</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
+              oninput="renderEfaaViolations()" id="efaa-violation-search">
+            <button class="btn-add" onclick="openEfaaViolationModal()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Violation
+            </button>
+          </div>
+          <div class="table-wrap" id="efaa-violations-table"></div>
         </div>
       </div>
 
@@ -352,6 +411,80 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('employee-modal')">Cancel</button>
         <button class="btn-save" onclick="saveEmployee()">Save Employee</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAROOR VIOLATION MODAL -->
+  <div class="modal-overlay" id="maroor-violation-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="maroor-violation-modal-title">Add Maroor Violation</div>
+        <button class="modal-close" onclick="closeModal('maroor-violation-modal')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="form-grid">
+        <div class="modal-group"><label>Violation ID</label><input id="mrv-id" placeholder="e.g. MRV001"></div>
+        <div class="modal-group"><label>Violation No.</label><input id="mrv-violationno" placeholder="Violation number">
+        </div>
+        <div class="modal-group"><label>Plate Number</label><input id="mrv-plate" placeholder="ABC-1234"></div>
+        <div class="modal-group"><label>Driver</label><input id="mrv-driver" placeholder="Driver name"></div>
+        <div class="modal-group"><label>Violation Date</label><input type="date" id="mrv-violationdate"></div>
+        <div class="modal-group"><label>Amount</label><input id="mrv-amount" placeholder="e.g. 500"></div>
+        <div class="modal-group"><label>Status</label>
+          <select id="mrv-status">
+            <option value="">Select status</option>
+            <option>Open</option>
+            <option>Paid</option>
+            <option>Disputed</option>
+          </select>
+        </div>
+        <div class="modal-group full"><label>Notes</label><input id="mrv-notes" placeholder="Optional notes"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('maroor-violation-modal')">Cancel</button>
+        <button class="btn-save" onclick="saveMaroorViolation()">Save Violation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EFAA VIOLATION MODAL -->
+  <div class="modal-overlay" id="efaa-violation-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="efaa-violation-modal-title">Add Efaa Violation</div>
+        <button class="modal-close" onclick="closeModal('efaa-violation-modal')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="form-grid">
+        <div class="modal-group"><label>Violation ID</label><input id="efv-id" placeholder="e.g. EFV001"></div>
+        <div class="modal-group"><label>Violation No.</label><input id="efv-violationno" placeholder="Violation number">
+        </div>
+        <div class="modal-group"><label>Plate Number</label><input id="efv-plate" placeholder="ABC-1234"></div>
+        <div class="modal-group"><label>Driver</label><input id="efv-driver" placeholder="Driver name"></div>
+        <div class="modal-group"><label>Violation Date</label><input type="date" id="efv-violationdate"></div>
+        <div class="modal-group"><label>Amount</label><input id="efv-amount" placeholder="e.g. 500"></div>
+        <div class="modal-group"><label>Status</label>
+          <select id="efv-status">
+            <option value="">Select status</option>
+            <option>Open</option>
+            <option>Paid</option>
+            <option>Disputed</option>
+          </select>
+        </div>
+        <div class="modal-group full"><label>Notes</label><input id="efv-notes" placeholder="Optional notes"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal('efaa-violation-modal')">Cancel</button>
+        <button class="btn-save" onclick="saveEfaaViolation()">Save Violation</button>
       </div>
     </div>
   </div>

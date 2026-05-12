@@ -220,6 +220,8 @@ const DEFAULT_VEHICLES = [
 let driversCache = [];
 let vehiclesCache = [];
 let employeesCache = [];
+let maroorViolationsCache = [];
+let efaaViolationsCache = [];
 let isSaving = false;
 
 function cleanRecord(record) {
@@ -233,6 +235,12 @@ function loadDrivers() {
 }
 function loadVehicles() {
   return vehiclesCache;
+}
+function loadMaroorViolations() {
+  return maroorViolationsCache;
+}
+function loadEfaaViolations() {
+  return efaaViolationsCache;
 }
 
 function showDbError(action, error) {
@@ -257,6 +265,24 @@ async function refreshVehicles() {
     return;
   }
   vehiclesCache = data || [];
+}
+
+async function refreshMaroorViolations() {
+  const { data, error } = await supabaseClient.from("maroor_violations").select("*").order("id");
+  if (error) {
+    showDbError("Could not load Maroor violations from Supabase", error);
+    return;
+  }
+  maroorViolationsCache = data || [];
+}
+
+async function refreshEfaaViolations() {
+  const { data, error } = await supabaseClient.from("efaa_violations").select("*").order("id");
+  if (error) {
+    showDbError("Could not load Efaa violations from Supabase", error);
+    return;
+  }
+  efaaViolationsCache = data || [];
 }
 
 async function seedDefaultsIfEmpty() {
@@ -371,13 +397,15 @@ function showPage(name) {
   document.getElementById("page-" + name).classList.add("active");
   document
     .querySelectorAll(".nav-item")
-  [["dashboard", "drivers", "vehicles", "employees"].indexOf(name)].classList.add(
+  [["dashboard", "drivers", "vehicles", "employees", "maroor-violations", "efaa-violations"].indexOf(name)].classList.add(
     "active"
   );
   if (name === "dashboard") renderDashboard();
   if (name === "drivers") renderDrivers();
   if (name === "vehicles") renderVehicles();
   if (name === "employees") renderEmployees();
+  if (name === "maroor-violations") renderMaroorViolations();
+  if (name === "efaa-violations") renderEfaaViolations();
 }
 
 // ══════════ DASHBOARD ══════════
@@ -385,6 +413,8 @@ function renderDashboard() {
   const drivers = loadDrivers();
   const vehicles = loadVehicles();
   const employees = loadEmployees();
+  const maroorViolations = loadMaroorViolations();
+  const efaaViolations = loadEfaaViolations();
   const now = new Date();
   document.getElementById("dash-date").textContent = now.toLocaleDateString(
     "en-US",
@@ -419,7 +449,9 @@ function renderDashboard() {
     (e) => worstStatus(e, EMPLOYEE_FIELDS) === "expiring"
   ).length;
 
-  const totalAlerts = dExpired + dWarn + vExpired + vWarn + eExpired + eWarn;
+  const maroorCount = maroorViolations.length;
+  const efaaCount = efaaViolations.length;
+  const totalAlerts = dExpired + dWarn + vExpired + vWarn + eExpired + eWarn + maroorCount + efaaCount;
   const badge = document.getElementById("alert-badge");
   if (totalAlerts > 0) {
     badge.style.display = "";
@@ -458,6 +490,16 @@ function renderDashboard() {
       <div class="stat-label">Employee Issues</div>
       <div class="stat-val c-red">${eExpired + eWarn}</div>
       <span class="stat-badge c-red">${eExpired} expired · ${eWarn} expiring</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Maroor Violation</div>
+      <div class="stat-val ${maroorCount > 0 ? "c-red" : "c-green"}">${maroorCount}</div>
+      <span class="stat-badge ${maroorCount > 0 ? "c-red" : "c-green"}">${maroorCount} violation${maroorCount > 1 ? "s" : ""}</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Efaa Violation</div>
+      <div class="stat-val ${efaaCount > 0 ? "c-red" : "c-green"}">${efaaCount}</div>
+      <span class="stat-badge ${efaaCount > 0 ? "c-red" : "c-green"}">${efaaCount} violation${efaaCount > 1 ? "s" : ""}</span>
     </div>
   `;
 
@@ -1092,6 +1134,221 @@ async function saveEmployee() {
   }
 }
 
+// ══════════ VIOLATIONS TABLES ══════════
+function renderViolationTable(kind) {
+  const config = getViolationConfig(kind);
+  const q = (document.getElementById(config.searchId)?.value || "").toLowerCase();
+  const rows = config.load().filter(
+    (v) =>
+      (v.id || "").toLowerCase().includes(q) ||
+      (v.violationno || "").toLowerCase().includes(q) ||
+      (v.plate || "").toLowerCase().includes(q) ||
+      (v.driver || "").toLowerCase().includes(q) ||
+      (v.status || "").toLowerCase().includes(q)
+  );
+
+  if (rows.length === 0) {
+    document.getElementById(config.tableId).innerHTML =
+      `<div class="empty">No ${config.label.toLowerCase()} records found.</div>`;
+    return;
+  }
+
+  let html = `<table><thead><tr>
+    <th>ID</th>
+    <th>Violation No.</th>
+    <th>Plate</th>
+    <th>Driver</th>
+    <th>Date</th>
+    <th>Amount</th>
+    <th>Status</th>
+    <th>Notes</th>
+    <th>Actions</th>
+  </tr></thead><tbody>`;
+
+  const allRows = config.load();
+  rows.forEach((v) => {
+    const ri = allRows.findIndex((x) => x.id === v.id);
+    html += `<tr>
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.id || "—"}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.violationno || "—"}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.plate || "—"}</td>
+      <td style="color:var(--text2);font-size:13px">${v.driver || "—"}</td>
+      <td><div class="date-sub">${fmtDate(v.violationdate)}</div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.amount || "—"}</td>
+      <td>${violationStatusBadge(v.status)}</td>
+      <td style="color:var(--text2);font-size:13px">${v.notes || "—"}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-icon edit" onclick="${config.editFn}(${ri})" title="Edit">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button class="btn-icon del" onclick="${config.deleteFn}(${ri})" title="Delete">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  document.getElementById(config.tableId).innerHTML = html;
+}
+
+function violationStatusBadge(status) {
+  if (status === "Paid") return '<span class="badge ok">Paid</span>';
+  if (status === "Disputed") return '<span class="badge expiring">Disputed</span>';
+  if (status === "Open") return '<span class="badge expired">Open</span>';
+  return '<span class="badge na">N/A</span>';
+}
+
+function getViolationConfig(kind) {
+  return kind === "maroor"
+    ? {
+      label: "Maroor Violation",
+      modalId: "maroor-violation-modal",
+      titleId: "maroor-violation-modal-title",
+      tableId: "maroor-violations-table",
+      searchId: "maroor-violation-search",
+      prefix: "mrv",
+      idPrefix: "MRV",
+      table: "maroor_violations",
+      load: loadMaroorViolations,
+      refresh: refreshMaroorViolations,
+      render: renderMaroorViolations,
+      editFn: "editMaroorViolation",
+      deleteFn: "deleteMaroorViolation",
+    }
+    : {
+      label: "Efaa Violation",
+      modalId: "efaa-violation-modal",
+      titleId: "efaa-violation-modal-title",
+      tableId: "efaa-violations-table",
+      searchId: "efaa-violation-search",
+      prefix: "efv",
+      idPrefix: "EFV",
+      table: "efaa_violations",
+      load: loadEfaaViolations,
+      refresh: refreshEfaaViolations,
+      render: renderEfaaViolations,
+      editFn: "editEfaaViolation",
+      deleteFn: "deleteEfaaViolation",
+    };
+}
+
+let editMaroorViolationIdx = -1;
+let editEfaaViolationIdx = -1;
+
+function openViolationModal(kind, idx = -1) {
+  const config = getViolationConfig(kind);
+  if (kind === "maroor") editMaroorViolationIdx = idx;
+  else editEfaaViolationIdx = idx;
+
+  const rows = config.load();
+  const v = idx >= 0 ? rows[idx] : {};
+  document.getElementById(config.titleId).textContent =
+    idx >= 0 ? `Edit ${config.label}` : `Add ${config.label}`;
+  document.getElementById(`${config.prefix}-id`).value = v.id || "";
+  document.getElementById(`${config.prefix}-violationno`).value = v.violationno || "";
+  document.getElementById(`${config.prefix}-plate`).value = v.plate || "";
+  document.getElementById(`${config.prefix}-driver`).value = v.driver || "";
+  document.getElementById(`${config.prefix}-violationdate`).value = v.violationdate || "";
+  document.getElementById(`${config.prefix}-amount`).value = v.amount || "";
+  document.getElementById(`${config.prefix}-status`).value = v.status || "";
+  document.getElementById(`${config.prefix}-notes`).value = v.notes || "";
+  document.getElementById(config.modalId).classList.add("open");
+}
+
+async function saveViolation(kind) {
+  if (isSaving) return;
+  const config = getViolationConfig(kind);
+  const editIdx = kind === "maroor" ? editMaroorViolationIdx : editEfaaViolationIdx;
+  const violationno = document.getElementById(`${config.prefix}-violationno`).value.trim();
+  if (!violationno) {
+    alert("Violation number is required.");
+    return;
+  }
+
+  isSaving = true;
+  try {
+    const rows = config.load();
+    const rec = {
+      id:
+        document.getElementById(`${config.prefix}-id`).value.trim() ||
+        (editIdx >= 0
+          ? rows[editIdx].id
+          : config.idPrefix + String(rows.length + 1).padStart(3, "0")),
+      violationno,
+      plate: document.getElementById(`${config.prefix}-plate`).value.trim(),
+      driver: document.getElementById(`${config.prefix}-driver`).value.trim(),
+      violationdate: document.getElementById(`${config.prefix}-violationdate`).value,
+      amount: document.getElementById(`${config.prefix}-amount`).value.trim(),
+      status: document.getElementById(`${config.prefix}-status`).value,
+      notes: document.getElementById(`${config.prefix}-notes`).value.trim(),
+    };
+    const query = editIdx >= 0
+      ? supabaseClient.from(config.table).update(cleanRecord(rec)).eq("id", rec.id)
+      : supabaseClient.from(config.table).insert(cleanRecord(rec));
+    const { error } = await query;
+    if (error) {
+      showDbError(`Could not save ${config.label.toLowerCase()} to Supabase`, error);
+      return;
+    }
+    await config.refresh();
+    closeModal(config.modalId);
+    config.render();
+    renderDashboard();
+  } catch (error) {
+    showDbError(`Could not save ${config.label.toLowerCase()} to Supabase`, error);
+  } finally {
+    isSaving = false;
+  }
+}
+
+async function deleteViolation(kind, idx) {
+  const config = getViolationConfig(kind);
+  if (!confirm(`Remove this ${config.label.toLowerCase()}?`)) return;
+  const row = config.load()[idx];
+  if (!row) return;
+  const { error } = await supabaseClient.from(config.table).delete().eq("id", row.id);
+  if (error) {
+    showDbError(`Could not delete ${config.label.toLowerCase()} from Supabase`, error);
+    return;
+  }
+  await config.refresh();
+  config.render();
+  renderDashboard();
+}
+
+function renderMaroorViolations() {
+  renderViolationTable("maroor");
+}
+function renderEfaaViolations() {
+  renderViolationTable("efaa");
+}
+function openMaroorViolationModal(idx = -1) {
+  openViolationModal("maroor", idx);
+}
+function openEfaaViolationModal(idx = -1) {
+  openViolationModal("efaa", idx);
+}
+function editMaroorViolation(idx) {
+  openMaroorViolationModal(idx);
+}
+function editEfaaViolation(idx) {
+  openEfaaViolationModal(idx);
+}
+function saveMaroorViolation() {
+  saveViolation("maroor");
+}
+function saveEfaaViolation() {
+  saveViolation("efaa");
+}
+function deleteMaroorViolation(idx) {
+  deleteViolation("maroor", idx);
+}
+function deleteEfaaViolation(idx) {
+  deleteViolation("efaa", idx);
+}
+
 // ══════════ INIT ══════════
 async function initApp() {
   const now = new Date();
@@ -1102,6 +1359,8 @@ async function initApp() {
   await refreshDrivers();
   await refreshVehicles();
   await refreshEmployees();
+  await refreshMaroorViolations();
+  await refreshEfaaViolations();
   await seedDefaultsIfEmpty();
   renderDashboard();
 }
