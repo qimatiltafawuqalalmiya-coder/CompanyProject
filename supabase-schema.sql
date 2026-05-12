@@ -62,7 +62,31 @@ alter table employees add column if not exists contractstart date;
 alter table employees add column if not exists contractend date;
 alter table employees add column if not exists ajeer date;
 
+create table if not exists maroor_violations (
+  id text primary key,
+  violationno text not null,
+  plate text,
+  driver text,
+  violationdate date,
+  amount text,
+  status text,
+  notes text
+);
+
+create table if not exists efaa_violations (
+  id text primary key,
+  violationno text not null,
+  plate text,
+  driver text,
+  violationdate date,
+  amount text,
+  status text,
+  notes text
+);
+
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on drivers to anon, authenticated;
 grant select, insert, update, delete on vehicles to anon, authenticated;
 grant select, insert, update, delete on employees to anon, authenticated;
+grant select, insert, update, delete on maroor_violations to anon, authenticated;
+grant select, insert, update, delete on efaa_violations to anon, authenticated;
