@@ -1088,26 +1088,30 @@ tr:hover td {
   }
 
   #drivers-table td:nth-child(8)::before {
-    content: "Driver Card";
+    content: "Driver Card No.";
   }
 
   #drivers-table td:nth-child(9)::before {
-    content: "Ajeer";
+    content: "Driver Card";
   }
 
   #drivers-table td:nth-child(10)::before {
-    content: "Passport";
+    content: "Ajeer";
   }
 
   #drivers-table td:nth-child(11)::before {
-    content: "Medical";
+    content: "Passport";
   }
 
   #drivers-table td:nth-child(12)::before {
-    content: "Visa";
+    content: "Medical";
   }
 
   #drivers-table td:nth-child(13)::before {
+    content: "Visa";
+  }
+
+  #drivers-table td:nth-child(14)::before {
     content: "Actions";
   }
 
@@ -1132,18 +1136,22 @@ tr:hover td {
   }
 
   #vehicles-table td:nth-child(7)::before {
-    content: "Mulkiya";
+    content: "Operation Card No.";
   }
 
   #vehicles-table td:nth-child(8)::before {
-    content: "Maintenance";
+    content: "Operation Card";
   }
 
   #vehicles-table td:nth-child(9)::before {
-    content: "GPS Status";
+    content: "Fahas";
   }
 
   #vehicles-table td:nth-child(10)::before {
+    content: "GPS Status";
+  }
+
+  #vehicles-table td:nth-child(11)::before {
     content: "Actions";
   }
 

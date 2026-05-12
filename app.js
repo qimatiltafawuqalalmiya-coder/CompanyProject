@@ -53,6 +53,7 @@ const DEFAULT_DRIVERS = [
     workpermit: "2025-05-20",
     license: "2025-12-01",
     insurance: "2025-05-28",
+    drivercardno: "DC-1001",
     drivercard: "2025-05-28",
     ajeer: "2025-06-30",
     passport: "2026-03-10",
@@ -70,6 +71,7 @@ const DEFAULT_DRIVERS = [
     workpermit: "2025-08-20",
     license: "2026-01-15",
     insurance: "2025-11-30",
+    drivercardno: "DC-1002",
     drivercard: "2026-02-10",
     ajeer: "2025-08-20",
     passport: "2027-05-01",
@@ -87,6 +89,7 @@ const DEFAULT_DRIVERS = [
     workpermit: "2026-02-14",
     license: "2026-05-20",
     insurance: "2026-01-01",
+    drivercardno: "DC-1003",
     drivercard: "2025-12-31",
     ajeer: "2026-02-14",
     passport: "2028-11-20",
@@ -104,6 +107,7 @@ const DEFAULT_DRIVERS = [
     workpermit: "2024-12-01",
     license: "2025-03-15",
     insurance: "2024-11-30",
+    drivercardno: "DC-1004",
     drivercard: "2024-12-15",
     ajeer: "2024-12-01",
     passport: "2025-06-10",
@@ -121,6 +125,7 @@ const DEFAULT_DRIVERS = [
     workpermit: "2026-07-10",
     license: "2026-09-01",
     insurance: "2026-05-15",
+    drivercardno: "DC-1005",
     drivercard: "2026-08-20",
     ajeer: "2026-07-10",
     passport: "2029-01-01",
@@ -141,8 +146,9 @@ const DEFAULT_VEHICLES = [
     insurance: "2025-05-25",
     ishtamara: "2025-06-10",
     tafweed: "2025-07-01",
-    mulkiya: "2025-12-01",
-    maintenance: "2025-11-15",
+    operationcardno: "OP-1001",
+    operationcardexpiry: "2025-12-01",
+    fahas: "2025-11-15",
     gps: "On",
   },
   {
@@ -156,8 +162,9 @@ const DEFAULT_VEHICLES = [
     insurance: "2025-09-30",
     ishtamara: "2025-10-15",
     tafweed: "2025-11-01",
-    mulkiya: "2026-01-20",
-    maintenance: "2026-02-28",
+    operationcardno: "OP-1002",
+    operationcardexpiry: "2026-01-20",
+    fahas: "2026-02-28",
     gps: "On",
   },
   {
@@ -171,8 +178,9 @@ const DEFAULT_VEHICLES = [
     insurance: "2025-12-31",
     ishtamara: "2026-01-10",
     tafweed: "2026-02-01",
-    mulkiya: "2026-03-15",
-    maintenance: "2026-04-01",
+    operationcardno: "OP-1003",
+    operationcardexpiry: "2026-03-15",
+    fahas: "2026-04-01",
     gps: "Off",
   },
   {
@@ -186,8 +194,9 @@ const DEFAULT_VEHICLES = [
     insurance: "2024-11-20",
     ishtamara: "2024-12-05",
     tafweed: "2025-01-01",
-    mulkiya: "2025-02-28",
-    maintenance: "2025-03-10",
+    operationcardno: "OP-1004",
+    operationcardexpiry: "2025-02-28",
+    fahas: "2025-03-10",
     gps: "Off",
   },
   {
@@ -201,8 +210,9 @@ const DEFAULT_VEHICLES = [
     insurance: "2025-05-30",
     ishtamara: "2025-11-01",
     tafweed: "2026-01-15",
-    mulkiya: "2026-03-10",
-    maintenance: "2025-05-15",
+    operationcardno: "OP-1005",
+    operationcardexpiry: "2026-03-10",
+    fahas: "2025-05-15",
     gps: "On",
   },
 ];
@@ -319,8 +329,8 @@ const VEHICLE_FIELDS = [
   "insurance",
   "ishtamara",
   "tafweed",
-  "mulkiya",
-  "maintenance",
+  "operationcardexpiry",
+  "fahas",
 ];
 
 const DRIVER_LABELS = {
@@ -338,8 +348,8 @@ const VEHICLE_LABELS = {
   insurance: "Insurance",
   ishtamara: "Ishtamara",
   tafweed: "Tafweed",
-  mulkiya: "Mulkiya",
-  maintenance: "Maintenance",
+  operationcardexpiry: "Operation Card",
+  fahas: "Fahas",
 };
 const EMPLOYEE_FIELDS = ["iqamaexpiry", "insurance", "ajeer", "passport", "contractend"];
 const EMPLOYEE_LABELS = {
@@ -554,6 +564,7 @@ function renderDrivers() {
       d.name.toLowerCase().includes(q) ||
       (d.id || "").toLowerCase().includes(q) ||
       (d.iqamaid || "").includes(q) ||
+      (d.drivercardno || "").toLowerCase().includes(q) ||
       (d.nationality || "").toLowerCase().includes(q) ||
       (d.dept || "").toLowerCase().includes(q)
   );
@@ -570,6 +581,7 @@ function renderDrivers() {
     <th>Work Permit</th>
     <th>Drv. Licence</th>
     <th>Insurance</th>
+    <th>Driver Card No.</th>
     <th>Driver Card</th>
     <th>Ajeer</th>
     <th>Passport</th>
@@ -598,7 +610,14 @@ function renderDrivers() {
       </td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.iqamaid || "—"
       }</td>
-      ${DRIVER_FIELDS.map((f) => {
+      ${["iqama", "workpermit", "license", "insurance"].map((f) => {
+        const days = daysUntil(d[f]);
+        return `<td>${statusLabel(days)}<div class="date-sub">${fmtDate(
+          d[f]
+        )}</div></td>`;
+      }).join("")}
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.drivercardno || "—"}</td>
+      ${["drivercard", "ajeer", "passport", "medical", "visa"].map((f) => {
         const days = daysUntil(d[f]);
         return `<td>${statusLabel(days)}<div class="date-sub">${fmtDate(
           d[f]
@@ -630,6 +649,7 @@ function renderVehicles() {
       (v.plate || "").toLowerCase().includes(q) ||
       (v.id || "").toLowerCase().includes(q) ||
       (v.make || "").toLowerCase().includes(q) ||
+      (v.operationcardno || "").toLowerCase().includes(q) ||
       (v.driver || "").toLowerCase().includes(q)
   );
   if (vehicles.length === 0) {
@@ -644,8 +664,9 @@ function renderVehicles() {
     <th>Insurance</th>
     <th>Ishtamara</th>
     <th>Tafweed</th>
-    <th>Mulkiya</th>
-    <th>Maintenance</th>
+    <th>Operation Card No.</th>
+    <th>Operation Card</th>
+    <th>Fahas</th>
     <th>GPS Status</th>
     <th>Actions</th>
   </tr></thead><tbody>`;
@@ -669,7 +690,14 @@ function renderVehicles() {
       } ${v.color ? "· " + v.color : ""}</div>
       </td>
       <td style="color:var(--text2);font-size:13px">${v.driver || "—"}</td>
-      ${VEHICLE_FIELDS.map((f) => {
+      ${["insurance", "ishtamara", "tafweed"].map((f) => {
+        const days = daysUntil(v[f]);
+        return `<td>${statusLabel(days)}<div class="date-sub">${fmtDate(
+          v[f]
+        )}</div></td>`;
+      }).join("")}
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.operationcardno || "—"}</span></td>
+      ${["operationcardexpiry", "fahas"].map((f) => {
         const days = daysUntil(v[f]);
         return `<td>${statusLabel(days)}<div class="date-sub">${fmtDate(
           v[f]
@@ -715,6 +743,7 @@ function openDriverModal(idx = -1) {
   document.getElementById("d-workpermit").value = d.workpermit || "";
   document.getElementById("d-license").value = d.license || "";
   document.getElementById("d-insurance").value = d.insurance || "";
+  document.getElementById("d-drivercardno").value = d.drivercardno || "";
   document.getElementById("d-drivercard").value = d.drivercard || "";
   document.getElementById("d-ajeer").value = d.ajeer || "";
   document.getElementById("d-passport").value = d.passport || "";
@@ -763,6 +792,7 @@ async function saveDriver() {
       workpermit: document.getElementById("d-workpermit").value,
       license: document.getElementById("d-license").value,
       insurance: document.getElementById("d-insurance").value,
+      drivercardno: document.getElementById("d-drivercardno").value.trim(),
       drivercard: document.getElementById("d-drivercard").value,
       ajeer: document.getElementById("d-ajeer").value,
       passport: document.getElementById("d-passport").value,
@@ -806,8 +836,9 @@ function openVehicleModal(idx = -1) {
   document.getElementById("v-insurance").value = v.insurance || "";
   document.getElementById("v-ishtamara").value = v.ishtamara || "";
   document.getElementById("v-tafweed").value = v.tafweed || "";
-  document.getElementById("v-mulkiya").value = v.mulkiya || "";
-  document.getElementById("v-maintenance").value = v.maintenance || "";
+  document.getElementById("v-operationcardno").value = v.operationcardno || "";
+  document.getElementById("v-operationcardexpiry").value = v.operationcardexpiry || "";
+  document.getElementById("v-fahas").value = v.fahas || v.maintenance || "";
   document.getElementById("v-gps").value = v.gps || "";
   document.getElementById("vehicle-modal").classList.add("open");
 }
@@ -852,8 +883,9 @@ async function saveVehicle() {
       insurance: document.getElementById("v-insurance").value,
       ishtamara: document.getElementById("v-ishtamara").value,
       tafweed: document.getElementById("v-tafweed").value,
-      mulkiya: document.getElementById("v-mulkiya").value,
-      maintenance: document.getElementById("v-maintenance").value,
+      operationcardno: document.getElementById("v-operationcardno").value.trim(),
+      operationcardexpiry: document.getElementById("v-operationcardexpiry").value,
+      fahas: document.getElementById("v-fahas").value,
       gps: document.getElementById("v-gps").value,
     };
     const query = editVehicleIdx >= 0
