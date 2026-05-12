@@ -154,7 +154,7 @@
         </div>
         <div class="table-card">
           <div class="table-toolbar">
-            <input class="table-search" type="text" placeholder="Search by plate, driver, make…"
+            <input class="table-search" type="text" placeholder="Search by plate, driver, operation card…"
               oninput="renderVehicles()" id="vehicle-search">
             <button class="btn-add" onclick="openVehicleModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -242,6 +242,8 @@
         <div class="modal-group"><label>Work Permit Expiry</label><input type="date" id="d-workpermit"></div>
         <div class="modal-group"><label>Driving Licence Expiry</label><input type="date" id="d-license"></div>
         <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="d-insurance"></div>
+        <div class="modal-group"><label>Driver Card No.</label><input id="d-drivercardno"
+            placeholder="Driver card number"></div>
         <div class="modal-group"><label>Driver Card Expiry</label><input type="date" id="d-drivercard"></div>
         <div class="modal-group"><label>Ajeer Expiry</label><input type="date" id="d-ajeer"></div>
         <div class="modal-group"><label>Passport Expiry</label><input type="date" id="d-passport"></div>
@@ -293,8 +295,11 @@
         <div class="modal-group"><label>Insurance Expiry</label><input type="date" id="v-insurance"></div>
         <div class="modal-group"><label>Ishtamara Expiry</label><input type="date" id="v-ishtamara"></div>
         <div class="modal-group"><label>Tafweed Expiry</label><input type="date" id="v-tafweed"></div>
-        <div class="modal-group"><label>Mulkiya Expiry</label><input type="date" id="v-mulkiya"></div>
-        <div class="modal-group"><label>Maintenance Expiry</label><input type="date" id="v-maintenance"></div>
+        <div class="modal-group"><label>Operation Card Number</label><input id="v-operationcardno"
+            placeholder="Operation card number"></div>
+        <div class="modal-group"><label>Operation Card Expiry</label><input type="date" id="v-operationcardexpiry">
+        </div>
+        <div class="modal-group"><label>Fahas Expiry</label><input type="date" id="v-fahas"></div>
         <div class="modal-group"><label>GPS Status</label>
           <select id="v-gps">
             <option value="">Select status</option>

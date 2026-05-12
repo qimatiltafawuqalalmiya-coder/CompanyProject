@@ -9,6 +9,7 @@ create table if not exists drivers (
   workpermit date,
   license date,
   insurance date,
+  drivercardno text,
   drivercard date,
   ajeer date,
   passport date,
@@ -27,10 +28,17 @@ create table if not exists vehicles (
   insurance date,
   ishtamara date,
   tafweed date,
-  mulkiya date,
-  maintenance date,
+  operationcardno text,
+  operationcardexpiry date,
+  fahas date,
   gps text
 );
+
+alter table drivers add column if not exists drivercardno text;
+
+alter table vehicles add column if not exists operationcardno text;
+alter table vehicles add column if not exists operationcardexpiry date;
+alter table vehicles add column if not exists fahas date;
 
 create table if not exists employees (
   id text primary key,
