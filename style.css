@@ -505,6 +505,11 @@ table {
   min-width: 900px;
 }
 
+#maroor-violations-table table,
+#efaa-violations-table table {
+  min-width: 1180px;
+}
+
 th {
   padding: 10px 12px;
   text-align: left;
@@ -1233,26 +1238,46 @@ tr:hover td {
 
   #maroor-violations-table td:nth-child(5)::before,
   #efaa-violations-table td:nth-child(5)::before {
-    content: "Date";
+    content: "Reference No.";
   }
 
   #maroor-violations-table td:nth-child(6)::before,
   #efaa-violations-table td:nth-child(6)::before {
-    content: "Amount";
+    content: "City";
   }
 
   #maroor-violations-table td:nth-child(7)::before,
   #efaa-violations-table td:nth-child(7)::before {
-    content: "Status";
+    content: "Date";
   }
 
   #maroor-violations-table td:nth-child(8)::before,
   #efaa-violations-table td:nth-child(8)::before {
-    content: "Notes";
+    content: "Time";
   }
 
   #maroor-violations-table td:nth-child(9)::before,
   #efaa-violations-table td:nth-child(9)::before {
+    content: "Amount";
+  }
+
+  #maroor-violations-table td:nth-child(10)::before,
+  #efaa-violations-table td:nth-child(10)::before {
+    content: "Status";
+  }
+
+  #maroor-violations-table td:nth-child(11)::before,
+  #efaa-violations-table td:nth-child(11)::before {
+    content: "Date Paid";
+  }
+
+  #maroor-violations-table td:nth-child(12)::before,
+  #efaa-violations-table td:nth-child(12)::before {
+    content: "Notes";
+  }
+
+  #maroor-violations-table td:nth-child(13)::before,
+  #efaa-violations-table td:nth-child(13)::before {
     content: "Actions";
   }
 }
