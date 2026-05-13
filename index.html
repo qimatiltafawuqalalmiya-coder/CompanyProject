@@ -434,15 +434,21 @@
         <div class="modal-group"><label>Plate Number</label><input id="mrv-plate" placeholder="ABC-1234"></div>
         <div class="modal-group"><label>Driver</label><input id="mrv-driver" placeholder="Driver name"></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="mrv-violationdate"></div>
+        <div class="modal-group"><label>Time Of Violation</label><input type="time" id="mrv-violationtime"></div>
+        <div class="modal-group"><label>Reference Violation No.</label><input id="mrv-referenceno"
+            placeholder="Reference number"></div>
+        <div class="modal-group"><label>City Of Violation</label><input id="mrv-city" placeholder="City"></div>
         <div class="modal-group"><label>Amount</label><input id="mrv-amount" placeholder="e.g. 500"></div>
         <div class="modal-group"><label>Status</label>
-          <select id="mrv-status">
+          <select id="mrv-status" onchange="togglePaidDateField('mrv')">
             <option value="">Select status</option>
             <option>Open</option>
             <option>Paid</option>
             <option>Disputed</option>
           </select>
         </div>
+        <div class="modal-group" id="mrv-paiddate-group"><label>Date Of Paid</label><input type="date"
+            id="mrv-paiddate"></div>
         <div class="modal-group full"><label>Notes</label><input id="mrv-notes" placeholder="Optional notes"></div>
       </div>
       <div class="modal-footer">
@@ -471,15 +477,21 @@
         <div class="modal-group"><label>Plate Number</label><input id="efv-plate" placeholder="ABC-1234"></div>
         <div class="modal-group"><label>Driver</label><input id="efv-driver" placeholder="Driver name"></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="efv-violationdate"></div>
+        <div class="modal-group"><label>Time Of Violation</label><input type="time" id="efv-violationtime"></div>
+        <div class="modal-group"><label>Reference Violation No.</label><input id="efv-referenceno"
+            placeholder="Reference number"></div>
+        <div class="modal-group"><label>City Of Violation</label><input id="efv-city" placeholder="City"></div>
         <div class="modal-group"><label>Amount</label><input id="efv-amount" placeholder="e.g. 500"></div>
         <div class="modal-group"><label>Status</label>
-          <select id="efv-status">
+          <select id="efv-status" onchange="togglePaidDateField('efv')">
             <option value="">Select status</option>
             <option>Open</option>
             <option>Paid</option>
             <option>Disputed</option>
           </select>
         </div>
+        <div class="modal-group" id="efv-paiddate-group"><label>Date Of Paid</label><input type="date"
+            id="efv-paiddate"></div>
         <div class="modal-group full"><label>Notes</label><input id="efv-notes" placeholder="Optional notes"></div>
       </div>
       <div class="modal-footer">

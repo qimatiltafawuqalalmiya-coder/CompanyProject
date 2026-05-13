@@ -422,6 +422,10 @@ function fmtDate(d) {
   });
 }
 
+function fmtTime(t) {
+  return t ? t.slice(0, 5) : "-";
+}
+
 const DRIVER_FIELDS = [
   "iqama",
   "workpermit",
@@ -1231,8 +1235,10 @@ function renderViolationTable(kind) {
     (v) =>
       (v.id || "").toLowerCase().includes(q) ||
       (v.violationno || "").toLowerCase().includes(q) ||
+      (v.referenceno || "").toLowerCase().includes(q) ||
       (v.plate || "").toLowerCase().includes(q) ||
       (v.driver || "").toLowerCase().includes(q) ||
+      (v.city || "").toLowerCase().includes(q) ||
       (v.status || "").toLowerCase().includes(q)
   );
 
@@ -1247,9 +1253,13 @@ function renderViolationTable(kind) {
     <th>Violation No.</th>
     <th>Plate</th>
     <th>Driver</th>
+    <th>Reference No.</th>
+    <th>City</th>
     <th>Date</th>
+    <th>Time</th>
     <th>Amount</th>
     <th>Status</th>
+    <th>Date Paid</th>
     <th>Notes</th>
     <th>Actions</th>
   </tr></thead><tbody>`;
@@ -1262,9 +1272,13 @@ function renderViolationTable(kind) {
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.violationno || "—"}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.plate || "—"}</td>
       <td style="color:var(--text2);font-size:13px">${v.driver || "—"}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.referenceno || "-"}</td>
+      <td style="color:var(--text2);font-size:13px">${v.city || "-"}</td>
       <td><div class="date-sub">${fmtDate(v.violationdate)}</div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${fmtTime(v.violationtime)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.amount || "—"}</td>
       <td>${violationStatusBadge(v.status)}</td>
+      <td><div class="date-sub">${v.status === "Paid" ? fmtDate(v.paiddate) : "-"}</div></td>
       <td style="color:var(--text2);font-size:13px">${v.notes || "—"}</td>
       <td>
         <div class="action-btns">
@@ -1326,6 +1340,15 @@ function getViolationConfig(kind) {
 let editMaroorViolationIdx = -1;
 let editEfaaViolationIdx = -1;
 
+function togglePaidDateField(prefix) {
+  const status = document.getElementById(`${prefix}-status`).value;
+  const group = document.getElementById(`${prefix}-paiddate-group`);
+  const paidDate = document.getElementById(`${prefix}-paiddate`);
+  const isPaid = status === "Paid";
+  group.style.display = isPaid ? "" : "none";
+  if (!isPaid) paidDate.value = "";
+}
+
 function openViolationModal(kind, idx = -1) {
   const config = getViolationConfig(kind);
   if (kind === "maroor") editMaroorViolationIdx = idx;
@@ -1340,9 +1363,14 @@ function openViolationModal(kind, idx = -1) {
   document.getElementById(`${config.prefix}-plate`).value = v.plate || "";
   document.getElementById(`${config.prefix}-driver`).value = v.driver || "";
   document.getElementById(`${config.prefix}-violationdate`).value = v.violationdate || "";
+  document.getElementById(`${config.prefix}-violationtime`).value = v.violationtime || "";
+  document.getElementById(`${config.prefix}-referenceno`).value = v.referenceno || "";
+  document.getElementById(`${config.prefix}-city`).value = v.city || "";
   document.getElementById(`${config.prefix}-amount`).value = v.amount || "";
   document.getElementById(`${config.prefix}-status`).value = v.status || "";
+  document.getElementById(`${config.prefix}-paiddate`).value = v.paiddate || "";
   document.getElementById(`${config.prefix}-notes`).value = v.notes || "";
+  togglePaidDateField(config.prefix);
   document.getElementById(config.modalId).classList.add("open");
 }
 
@@ -1370,8 +1398,15 @@ async function saveViolation(kind) {
       plate: document.getElementById(`${config.prefix}-plate`).value.trim(),
       driver: document.getElementById(`${config.prefix}-driver`).value.trim(),
       violationdate: document.getElementById(`${config.prefix}-violationdate`).value,
+      violationtime: document.getElementById(`${config.prefix}-violationtime`).value,
+      referenceno: document.getElementById(`${config.prefix}-referenceno`).value.trim(),
+      city: document.getElementById(`${config.prefix}-city`).value.trim(),
       amount: document.getElementById(`${config.prefix}-amount`).value.trim(),
       status: document.getElementById(`${config.prefix}-status`).value,
+      paiddate:
+        document.getElementById(`${config.prefix}-status`).value === "Paid"
+          ? document.getElementById(`${config.prefix}-paiddate`).value
+          : "",
       notes: document.getElementById(`${config.prefix}-notes`).value.trim(),
     };
     const query = editIdx >= 0

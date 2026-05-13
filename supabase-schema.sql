@@ -68,8 +68,12 @@ create table if not exists maroor_violations (
   plate text,
   driver text,
   violationdate date,
+  violationtime time,
+  referenceno text,
+  city text,
   amount text,
   status text,
+  paiddate date,
   notes text
 );
 
@@ -79,10 +83,24 @@ create table if not exists efaa_violations (
   plate text,
   driver text,
   violationdate date,
+  violationtime time,
+  referenceno text,
+  city text,
   amount text,
   status text,
+  paiddate date,
   notes text
 );
+
+alter table maroor_violations add column if not exists violationtime time;
+alter table maroor_violations add column if not exists referenceno text;
+alter table maroor_violations add column if not exists city text;
+alter table maroor_violations add column if not exists paiddate date;
+
+alter table efaa_violations add column if not exists violationtime time;
+alter table efaa_violations add column if not exists referenceno text;
+alter table efaa_violations add column if not exists city text;
+alter table efaa_violations add column if not exists paiddate date;
 
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on drivers to anon, authenticated;
