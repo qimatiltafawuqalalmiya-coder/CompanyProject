@@ -48,6 +48,10 @@ body {
   background-image: radial-gradient(ellipse at 20% 50%, #2a5a3a 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, #0f2a1a 0%, transparent 50%);
 }
 
+.auth-checking #login-screen {
+  display: none;
+}
+
 .login-card {
   background: var(--surface);
   border-radius: 20px;
@@ -164,6 +168,11 @@ body {
 
 .btn-login:hover {
   opacity: .88;
+}
+
+.btn-login:disabled {
+  cursor: wait;
+  opacity: .7;
 }
 
 .login-hint {
