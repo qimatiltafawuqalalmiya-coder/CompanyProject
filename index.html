@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="auth-checking">
 
   <!-- KEEP ALL YOUR HTML BODY CONTENT HERE -->
   <!-- START FROM: -->
@@ -33,17 +33,17 @@
       </div>
       <div class="login-title">Welcome back</div>
       <div class="login-subtitle">Sign in to access your fleet dashboard</div>
-      <div class="login-error" id="login-error">Incorrect username or password.</div>
+      <div class="login-error" id="login-error"></div>
       <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+        <label>Email</label>
+        <input type="email" id="login-user" placeholder="Enter email address" autocomplete="email">
       </div>
       <div class="form-group">
         <label>Password</label>
         <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
       </div>
-      <button class="btn-login" onclick="doLogin()">Sign In</button>
-      <div class="login-hint">Default: <strong>admin</strong> / <strong>admin123</strong></div>
+      <button class="btn-login" id="login-button" onclick="doLogin()">Sign In</button>
+      <div class="login-hint">Access is managed by your administrator.</div>
     </div>
   </div>
 

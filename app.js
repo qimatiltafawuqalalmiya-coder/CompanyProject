@@ -1,7 +1,14 @@
 const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHdzdXptcnZtZ3VxcWxqaXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3MDYsImV4cCI6MjA5NDA2OTcwNn0._kRUs0cqkGMu2bffoE4mo9SOIAkdqOA0JRVCgONVf00";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
 window.testSupabaseWrite = async function testSupabaseWrite() {
+  if (!(await requireAuth())) return;
   const testId = "TEST-" + Date.now();
   const { data, error } = await supabaseClient
     .from("drivers")
@@ -12,17 +19,89 @@ window.testSupabaseWrite = async function testSupabaseWrite() {
   alert(error ? `Write test failed: ${error.message || error}` : `Write test worked: ${testId}`);
 };
 
-const USERS = { admin: "admin123", manager: "fleet2024" };
+let currentSession = null;
+let appInitialized = false;
 
-function doLogin() {
-  const u = document.getElementById("login-user").value.trim();
-  const p = document.getElementById("login-pass").value;
-  if (USERS[u] && USERS[u] === p) {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    initApp();
+function showLogin(errorMessage = "") {
+  document.body.classList.remove("auth-checking");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-pass").value = "";
+  setLoginError(errorMessage);
+}
+
+async function showDashboard(session) {
+  currentSession = session;
+  document.body.classList.remove("auth-checking");
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  setLoginError("");
+  if (!appInitialized) {
+    appInitialized = true;
+    await initApp();
   } else {
-    document.getElementById("login-error").style.display = "block";
+    renderDashboard();
+  }
+}
+
+function setLoginError(message) {
+  const errorEl = document.getElementById("login-error");
+  errorEl.textContent = message;
+  errorEl.style.display = message ? "block" : "none";
+}
+
+function setLoginBusy(isBusy) {
+  const button = document.getElementById("login-button");
+  button.disabled = isBusy;
+  button.textContent = isBusy ? "Signing in..." : "Sign In";
+}
+
+function formatAuthError(error) {
+  const message = error?.message || "Could not sign in. Please try again.";
+  if (/invalid login credentials/i.test(message)) {
+    return "Invalid email or password.";
+  }
+  if (/email not confirmed/i.test(message)) {
+    return "This email has not been confirmed yet. Contact your administrator.";
+  }
+  return message;
+}
+
+async function requireAuth() {
+  if (currentSession) return true;
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error || !data.session) {
+    currentSession = null;
+    showLogin("Please sign in to continue.");
+    return false;
+  }
+  currentSession = data.session;
+  return true;
+}
+
+async function doLogin() {
+  const email = document.getElementById("login-user").value.trim();
+  const password = document.getElementById("login-pass").value;
+  setLoginError("");
+  if (!email || !password) {
+    setLoginError("Enter your email and password.");
+    return;
+  }
+  setLoginBusy(true);
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      setLoginError(formatAuthError(error));
+      return;
+    }
+    await showDashboard(data.session);
+  } catch (error) {
+    setLoginError(formatAuthError(error));
+  } finally {
+    setLoginBusy(false);
   }
 }
 document.getElementById("login-pass").addEventListener("keydown", (e) => {
@@ -32,12 +111,15 @@ document.getElementById("login-user").addEventListener("keydown", (e) => {
   if (e.key === "Enter") doLogin();
 });
 
-function doLogout() {
+async function doLogout() {
+  await supabaseClient.auth.signOut();
+  currentSession = null;
+  appInitialized = false;
   document.getElementById("app").style.display = "none";
   document.getElementById("login-screen").style.display = "flex";
   document.getElementById("login-user").value = "";
   document.getElementById("login-pass").value = "";
-  document.getElementById("login-error").style.display = "none";
+  setLoginError("");
 }
 
 // ══════════ DATABASE (localStorage) ══════════
@@ -387,7 +469,8 @@ const EMPLOYEE_LABELS = {
 };
 
 // ══════════ NAVIGATION ══════════
-function showPage(name) {
+async function showPage(name) {
+  if (!(await requireAuth())) return;
   document
     .querySelectorAll(".page")
     .forEach((p) => p.classList.remove("active"));
@@ -797,6 +880,7 @@ function editDriver(idx) {
   openDriverModal(idx);
 }
 async function deleteDriver(idx) {
+  if (!(await requireAuth())) return;
   if (!confirm("Remove this driver?")) return;
   const driver = driversCache[idx];
   if (!driver) return;
@@ -810,6 +894,7 @@ async function deleteDriver(idx) {
   renderDashboard();
 }
 async function saveDriver() {
+  if (!(await requireAuth())) return;
   if (isSaving) return;
   const name = document.getElementById("d-name").value.trim();
   if (!name) {
@@ -888,6 +973,7 @@ function editVehicle(idx) {
   openVehicleModal(idx);
 }
 async function deleteVehicle(idx) {
+  if (!(await requireAuth())) return;
   if (!confirm("Remove this vehicle?")) return;
   const vehicle = vehiclesCache[idx];
   if (!vehicle) return;
@@ -901,6 +987,7 @@ async function deleteVehicle(idx) {
   renderDashboard();
 }
 async function saveVehicle() {
+  if (!(await requireAuth())) return;
   if (isSaving) return;
   const plate = document.getElementById("v-plate").value.trim();
   if (!plate) {
@@ -1075,6 +1162,7 @@ function editEmployee(idx) {
   openEmployeeModal(idx);
 }
 async function deleteEmployee(idx) {
+  if (!(await requireAuth())) return;
   if (!confirm("Remove this employee?")) return;
   const employee = employeesCache[idx];
   if (!employee) return;
@@ -1088,6 +1176,7 @@ async function deleteEmployee(idx) {
   renderDashboard();
 }
 async function saveEmployee() {
+  if (!(await requireAuth())) return;
   if (isSaving) return;
   const name = document.getElementById("e-name").value.trim();
   if (!name) {
@@ -1258,6 +1347,7 @@ function openViolationModal(kind, idx = -1) {
 }
 
 async function saveViolation(kind) {
+  if (!(await requireAuth())) return;
   if (isSaving) return;
   const config = getViolationConfig(kind);
   const editIdx = kind === "maroor" ? editMaroorViolationIdx : editEfaaViolationIdx;
@@ -1304,6 +1394,7 @@ async function saveViolation(kind) {
 }
 
 async function deleteViolation(kind, idx) {
+  if (!(await requireAuth())) return;
   const config = getViolationConfig(kind);
   if (!confirm(`Remove this ${config.label.toLowerCase()}?`)) return;
   const row = config.load()[idx];
@@ -1351,6 +1442,7 @@ function deleteEfaaViolation(idx) {
 
 // ══════════ INIT ══════════
 async function initApp() {
+  if (!(await requireAuth())) return;
   const now = new Date();
   document.getElementById("sidebar-date").textContent = now.toLocaleDateString(
     "en-GB",
@@ -1364,3 +1456,22 @@ async function initApp() {
   await seedDefaultsIfEmpty();
   renderDashboard();
 }
+
+async function initializeAuth() {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error || !data.session) {
+    currentSession = null;
+    showLogin();
+  } else {
+    await showDashboard(data.session);
+  }
+}
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  currentSession = session;
+  if (event === "SIGNED_OUT") {
+    showLogin();
+  }
+});
+
+initializeAuth();
