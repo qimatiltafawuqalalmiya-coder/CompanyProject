@@ -691,7 +691,11 @@ function renderDrivers() {
       (d.iqamaid || "").includes(q) ||
       (d.drivercardno || "").toLowerCase().includes(q) ||
       (d.nationality || "").toLowerCase().includes(q) ||
-      (d.dept || "").toLowerCase().includes(q)
+      (d.dept || "").toLowerCase().includes(q) ||
+      (d.company || "").toLowerCase().includes(q) ||
+      (d.registrationno || "").toLowerCase().includes(q) ||
+      (d.responsible || "").toLowerCase().includes(q) ||
+      (d.drivertype || "").toLowerCase().includes(q)
   );
   if (drivers.length === 0) {
     document.getElementById("drivers-table").innerHTML =
@@ -728,6 +732,8 @@ function renderDrivers() {
       }</span></td>
       <td>
         <div style="font-weight:500">${d.name}</div>
+        <div style="font-size:11px;color:var(--text3)">Company: ${d.company || "-"} | Reg: ${d.registrationno || "-"} | Responsible: ${d.responsible || "-"}</div>
+        <div style="font-size:11px;color:var(--text3)">Type: ${d.drivertype || "-"}</div>
         <div style="font-size:11px;color:var(--text3)">${d.nationality || ""} ${d.dept ? "· " + d.dept : ""
       }</div>
       </td>
@@ -862,6 +868,10 @@ function openDriverModal(idx = -1) {
   document.getElementById("d-phone").value = d.phone || "";
   document.getElementById("d-nationality").value = d.nationality || "";
   document.getElementById("d-dept").value = d.dept || "";
+  document.getElementById("d-company").value = d.company || "";
+  document.getElementById("d-registrationno").value = d.registrationno || "";
+  document.getElementById("d-responsible").value = d.responsible || "";
+  document.getElementById("d-drivertype").value = d.drivertype || "";
   document.getElementById("d-iqama").value = d.iqama || "";
   document.getElementById("d-workpermit").value = d.workpermit || "";
   document.getElementById("d-license").value = d.license || "";
@@ -911,6 +921,10 @@ async function saveDriver() {
       phone: document.getElementById("d-phone").value.trim(),
       nationality: document.getElementById("d-nationality").value.trim(),
       dept: document.getElementById("d-dept").value.trim(),
+      company: document.getElementById("d-company").value.trim(),
+      registrationno: document.getElementById("d-registrationno").value.trim(),
+      responsible: document.getElementById("d-responsible").value.trim(),
+      drivertype: document.getElementById("d-drivertype").value,
       iqama: document.getElementById("d-iqama").value,
       workpermit: document.getElementById("d-workpermit").value,
       license: document.getElementById("d-license").value,

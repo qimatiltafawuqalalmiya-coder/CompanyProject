@@ -7,6 +7,10 @@ create table if not exists drivers (
   phone text,
   nationality text,
   dept text,
+  company text,
+  registrationno text,
+  responsible text,
+  drivertype text,
   iqama date,
   workpermit date,
   license date,
@@ -37,6 +41,10 @@ create table if not exists vehicles (
 );
 
 alter table drivers add column if not exists drivercardno text;
+alter table drivers add column if not exists company text;
+alter table drivers add column if not exists registrationno text;
+alter table drivers add column if not exists responsible text;
+alter table drivers add column if not exists drivertype text;
 
 alter table vehicles add column if not exists operationcardno text;
 alter table vehicles add column if not exists operationcardexpiry date;
