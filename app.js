@@ -434,8 +434,6 @@ const DRIVER_FIELDS = [
   "drivercard",
   "ajeer",
   "passport",
-  "medical",
-  "visa",
 ];
 const VEHICLE_FIELDS = [
   "insurance",
@@ -453,8 +451,6 @@ const DRIVER_LABELS = {
   drivercard: "Driver Card",
   ajeer: "Ajeer",
   passport: "Passport",
-  medical: "Medical",
-  visa: "Visa",
 };
 const VEHICLE_LABELS = {
   insurance: "Insurance",
@@ -714,8 +710,6 @@ function renderDrivers() {
     <th>Driver Card</th>
     <th>Ajeer</th>
     <th>Passport</th>
-    <th>Medical</th>
-    <th>Visa</th>
     <th>Actions</th>
   </tr></thead><tbody>`;
 
@@ -746,7 +740,7 @@ function renderDrivers() {
         )}</div></td>`;
       }).join("")}
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.drivercardno || "—"}</td>
-      ${["drivercard", "ajeer", "passport", "medical", "visa"].map((f) => {
+      ${["drivercard", "ajeer", "passport"].map((f) => {
         const days = daysUntil(d[f]);
         return `<td>${statusLabel(days)}<div class="date-sub">${fmtDate(
           d[f]
@@ -876,8 +870,6 @@ function openDriverModal(idx = -1) {
   document.getElementById("d-drivercard").value = d.drivercard || "";
   document.getElementById("d-ajeer").value = d.ajeer || "";
   document.getElementById("d-passport").value = d.passport || "";
-  document.getElementById("d-medical").value = d.medical || "";
-  document.getElementById("d-visa").value = d.visa || "";
   document.getElementById("driver-modal").classList.add("open");
 }
 function editDriver(idx) {
@@ -927,8 +919,6 @@ async function saveDriver() {
       drivercard: document.getElementById("d-drivercard").value,
       ajeer: document.getElementById("d-ajeer").value,
       passport: document.getElementById("d-passport").value,
-      medical: document.getElementById("d-medical").value,
-      visa: document.getElementById("d-visa").value,
     };
     const query = editDriverIdx >= 0
       ? supabaseClient.from("drivers").update(cleanRecord(rec)).eq("id", rec.id)
@@ -1070,6 +1060,7 @@ function renderEmployees() {
   ).toLowerCase();
   const employees = loadEmployees().filter(
     (e) =>
+      (e.id || "").toLowerCase().includes(q) ||
       (e.name || "").toLowerCase().includes(q) ||
       (e.iqama || "").includes(q) ||
       (e.occupation || "").toLowerCase().includes(q) ||
@@ -1077,6 +1068,7 @@ function renderEmployees() {
       (e.mobile || "").includes(q)
   );
   let html = `<table><thead><tr>
+    <th>Employee ID</th>
     <th>Name</th>
     <th>Mobile Number</th>
     <th>Date of Birth</th>
@@ -1092,7 +1084,7 @@ function renderEmployees() {
     <th>Actions</th>
   </tr></thead><tbody>`;
   if (employees.length === 0) {
-    html += `<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
+    html += `<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
     html += "</tbody></table>";
     document.getElementById("employees-table").innerHTML = html;
     return;
@@ -1109,6 +1101,7 @@ function renderEmployees() {
           : "";
     const ri = allE.findIndex((x) => x.id === e.id);
     html += `<tr class="${rc}">
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.id || "â€”"}</td>
       <td>
         <div style="font-weight:500">${e.name}</div>
         <div style="font-size:11px;color:var(--text3)">${e.occupation || ""}</div>
@@ -1148,6 +1141,8 @@ function openEmployeeModal(idx = -1) {
   const e = idx >= 0 ? employees[idx] : {};
   document.getElementById("employee-modal-title").textContent =
     idx >= 0 ? "Edit Employee" : "Add Employee";
+  document.getElementById("e-id").value =
+    e.id || "E" + String(employees.length + 1).padStart(3, "0");
   document.getElementById("e-name").value = e.name || "";
   document.getElementById("e-mobile").value = e.mobile || "";
   document.getElementById("e-dateofbirth").value = e.dateofbirth || "";
@@ -1183,6 +1178,11 @@ async function saveEmployee() {
   if (!(await requireAuth())) return;
   if (isSaving) return;
   const name = document.getElementById("e-name").value.trim();
+  const id = document.getElementById("e-id").value.trim();
+  if (!id) {
+    alert("Employee ID is required.");
+    return;
+  }
   if (!name) {
     alert("Employee name is required.");
     return;
@@ -1190,11 +1190,14 @@ async function saveEmployee() {
   isSaving = true;
   try {
     const employees = loadEmployees();
+    const existingIdx = employees.findIndex((employee) => employee.id === id);
+    if (existingIdx >= 0 && existingIdx !== editEmployeeIdx) {
+      alert("Employee ID must be unique.");
+      return;
+    }
+    const previousId = editEmployeeIdx >= 0 ? employees[editEmployeeIdx].id : id;
     const rec = {
-      id:
-        editEmployeeIdx >= 0
-          ? employees[editEmployeeIdx].id
-          : "E" + String(employees.length + 1).padStart(3, "0"),
+      id,
       name,
       mobile: document.getElementById("e-mobile").value.trim(),
       dateofbirth: document.getElementById("e-dateofbirth").value,
@@ -1209,7 +1212,7 @@ async function saveEmployee() {
       passport: document.getElementById("e-passport").value,
     };
     const query = editEmployeeIdx >= 0
-      ? supabaseClient.from("employees").update(cleanRecord(rec)).eq("id", rec.id)
+      ? supabaseClient.from("employees").update(cleanRecord(rec)).eq("id", previousId)
       : supabaseClient.from("employees").insert(cleanRecord(rec));
     const { error } = await query;
     if (error) {

@@ -510,6 +510,10 @@ table {
   min-width: 1180px;
 }
 
+#employees-table table {
+  min-width: 1080px;
+}
+
 th {
   padding: 10px 12px;
   text-align: left;
@@ -1058,6 +1062,7 @@ tr:hover td {
 
   #drivers-table td:first-child,
   #vehicles-table td:first-child,
+  #employees-table td:first-child,
   #maroor-violations-table td:first-child,
   #efaa-violations-table td:first-child {
     display: flex;
@@ -1067,10 +1072,15 @@ tr:hover td {
 
   #drivers-table td:first-child::before,
   #vehicles-table td:first-child::before,
+  #employees-table td:first-child::before,
   #maroor-violations-table td:first-child::before,
   #efaa-violations-table td:first-child::before {
     display: block;
     content: "ID";
+  }
+
+  #employees-table td:first-child::before {
+    content: "Employee ID";
   }
 
   td .date-sub {
@@ -1122,14 +1132,6 @@ tr:hover td {
   }
 
   #drivers-table td:nth-child(12)::before {
-    content: "Medical";
-  }
-
-  #drivers-table td:nth-child(13)::before {
-    content: "Visa";
-  }
-
-  #drivers-table td:nth-child(14)::before {
     content: "Actions";
   }
 
@@ -1174,50 +1176,54 @@ tr:hover td {
   }
 
   #employees-table td:nth-child(2)::before {
-    content: "Mobile Number";
+    content: "Name";
   }
 
   #employees-table td:nth-child(3)::before {
-    content: "Date of Birth";
+    content: "Mobile Number";
   }
 
   #employees-table td:nth-child(4)::before {
-    content: "Iqama No.";
+    content: "Date of Birth";
   }
 
   #employees-table td:nth-child(5)::before {
-    content: "Company";
+    content: "Iqama No.";
   }
 
   #employees-table td:nth-child(6)::before {
-    content: "Occupation";
+    content: "Company";
   }
 
   #employees-table td:nth-child(7)::before {
-    content: "Date of Contract";
+    content: "Occupation";
   }
 
   #employees-table td:nth-child(8)::before {
-    content: "End of Contract";
+    content: "Date of Contract";
   }
 
   #employees-table td:nth-child(9)::before {
-    content: "Iqama Expiry";
+    content: "End of Contract";
   }
 
   #employees-table td:nth-child(10)::before {
-    content: "Medical Insurance";
+    content: "Iqama Expiry";
   }
 
   #employees-table td:nth-child(11)::before {
-    content: "Ajeer";
+    content: "Medical Insurance";
   }
 
   #employees-table td:nth-child(12)::before {
-    content: "Passport Expiry";
+    content: "Ajeer";
   }
 
   #employees-table td:nth-child(13)::before {
+    content: "Passport Expiry";
+  }
+
+  #employees-table td:nth-child(14)::before {
     content: "Actions";
   }
 
