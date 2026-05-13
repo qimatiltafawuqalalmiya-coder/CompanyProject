@@ -1269,7 +1269,7 @@ function renderViolationTable(kind) {
 
   const allRows = config.load();
   rows.forEach((v) => {
-    const ri = allRows.findIndex((x) => x.id === v.id);
+    const ri = allRows.findIndex((x) => x === v);
     html += `<tr>
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.id || "—"}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.violationno || "—"}</td>
@@ -1352,6 +1352,11 @@ function togglePaidDateField(prefix) {
   if (!isPaid) paidDate.value = "";
 }
 
+function applyViolationRowFilter(query, row) {
+  if (row?.uid) return query.eq("uid", row.uid);
+  return query.eq("id", row.id);
+}
+
 function openViolationModal(kind, idx = -1) {
   const config = getViolationConfig(kind);
   if (kind === "maroor") editMaroorViolationIdx = idx;
@@ -1391,11 +1396,12 @@ async function saveViolation(kind) {
   isSaving = true;
   try {
     const rows = config.load();
+    const editingRow = editIdx >= 0 ? rows[editIdx] : null;
     const rec = {
       id:
         document.getElementById(`${config.prefix}-id`).value.trim() ||
         (editIdx >= 0
-          ? rows[editIdx].id
+          ? editingRow.id
           : config.idPrefix + String(rows.length + 1).padStart(3, "0")),
       violationno,
       plate: document.getElementById(`${config.prefix}-plate`).value.trim(),
@@ -1413,7 +1419,7 @@ async function saveViolation(kind) {
       notes: document.getElementById(`${config.prefix}-notes`).value.trim(),
     };
     const query = editIdx >= 0
-      ? supabaseClient.from(config.table).update(cleanRecord(rec)).eq("id", rec.id)
+      ? applyViolationRowFilter(supabaseClient.from(config.table).update(cleanRecord(rec)), editingRow)
       : supabaseClient.from(config.table).insert(cleanRecord(rec));
     const { error } = await query;
     if (error) {
@@ -1437,7 +1443,7 @@ async function deleteViolation(kind, idx) {
   if (!confirm(`Remove this ${config.label.toLowerCase()}?`)) return;
   const row = config.load()[idx];
   if (!row) return;
-  const { error } = await supabaseClient.from(config.table).delete().eq("id", row.id);
+  const { error } = await applyViolationRowFilter(supabaseClient.from(config.table).delete(), row);
   if (error) {
     showDbError(`Could not delete ${config.label.toLowerCase()} from Supabase`, error);
     return;

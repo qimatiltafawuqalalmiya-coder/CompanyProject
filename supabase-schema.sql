@@ -1,3 +1,5 @@
+create extension if not exists pgcrypto;
+
 create table if not exists drivers (
   id text primary key,
   name text not null,
@@ -63,7 +65,8 @@ alter table employees add column if not exists contractend date;
 alter table employees add column if not exists ajeer date;
 
 create table if not exists maroor_violations (
-  id text primary key,
+  uid uuid primary key default gen_random_uuid(),
+  id text,
   violationno text not null,
   plate text,
   driver text,
@@ -78,7 +81,8 @@ create table if not exists maroor_violations (
 );
 
 create table if not exists efaa_violations (
-  id text primary key,
+  uid uuid primary key default gen_random_uuid(),
+  id text,
   violationno text not null,
   plate text,
   driver text,
@@ -92,15 +96,29 @@ create table if not exists efaa_violations (
   notes text
 );
 
+alter table maroor_violations add column if not exists uid uuid default gen_random_uuid();
+alter table maroor_violations alter column uid set default gen_random_uuid();
+update maroor_violations set uid = gen_random_uuid() where uid is null;
+alter table maroor_violations alter column uid set not null;
 alter table maroor_violations add column if not exists violationtime time;
 alter table maroor_violations add column if not exists referenceno text;
 alter table maroor_violations add column if not exists city text;
 alter table maroor_violations add column if not exists paiddate date;
 
+alter table efaa_violations add column if not exists uid uuid default gen_random_uuid();
+alter table efaa_violations alter column uid set default gen_random_uuid();
+update efaa_violations set uid = gen_random_uuid() where uid is null;
+alter table efaa_violations alter column uid set not null;
 alter table efaa_violations add column if not exists violationtime time;
 alter table efaa_violations add column if not exists referenceno text;
 alter table efaa_violations add column if not exists city text;
 alter table efaa_violations add column if not exists paiddate date;
+
+alter table maroor_violations drop constraint if exists maroor_violations_pkey;
+alter table efaa_violations drop constraint if exists efaa_violations_pkey;
+
+alter table maroor_violations add primary key (uid);
+alter table efaa_violations add primary key (uid);
 
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on drivers to anon, authenticated;
