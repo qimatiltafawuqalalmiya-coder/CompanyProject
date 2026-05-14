@@ -468,7 +468,30 @@ body {
   opacity: .85;
 }
 
-.btn-add svg {
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  color: var(--accent);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+
+.btn-export:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+}
+
+.btn-add svg,
+.btn-export svg {
   width: 15px;
   height: 15px;
 }
@@ -986,7 +1009,8 @@ tr:hover td {
     max-width: none;
   }
 
-  .btn-add {
+  .btn-add,
+  .btn-export {
     flex: 1 1 160px;
     justify-content: center;
   }
