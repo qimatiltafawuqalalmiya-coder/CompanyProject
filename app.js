@@ -413,6 +413,24 @@ function worstStatus(record, fields) {
   if (statuses.some((d) => d <= 30)) return "expiring";
   return "ok";
 }
+function documentSummaryHtml(label, records, fields) {
+  const invalid = records.filter((record) => worstStatus(record, fields) !== "ok").length;
+  const valid = records.length - invalid;
+  return `<div class="list-summary">
+    <span>Total ${label}: <strong>${records.length}</strong></span>
+    <span class="summary-valid">Valid: <strong>${valid}</strong></span>
+    <span class="summary-invalid">Invalid: <strong>${invalid}</strong></span>
+  </div>`;
+}
+function violationSummaryHtml(label, records) {
+  const paid = records.filter((record) => record.status === "Paid").length;
+  const unpaid = records.length - paid;
+  return `<div class="list-summary">
+    <span>Total ${label}: <strong>${records.length}</strong></span>
+    <span class="summary-valid">Paid: <strong>${paid}</strong></span>
+    <span class="summary-invalid">Unpaid/Open: <strong>${unpaid}</strong></span>
+  </div>`;
+}
 function fmtDate(d) {
   if (!d) return "—";
   return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
@@ -699,7 +717,8 @@ function renderDrivers() {
   );
   if (drivers.length === 0) {
     document.getElementById("drivers-table").innerHTML =
-      '<div class="empty">No drivers found.</div>';
+      '<div class="empty">No drivers found.</div>' +
+      documentSummaryHtml("Drivers", loadDrivers(), DRIVER_FIELDS);
     return;
   }
   let html = `<table><thead><tr>
@@ -765,7 +784,8 @@ function renderDrivers() {
     </tr>`;
   });
   html += "</tbody></table>";
-  document.getElementById("drivers-table").innerHTML = html;
+  document.getElementById("drivers-table").innerHTML =
+    html + documentSummaryHtml("Drivers", loadDrivers(), DRIVER_FIELDS);
 }
 
 // ══════════ VEHICLES TABLE ══════════
@@ -783,7 +803,8 @@ function renderVehicles() {
   );
   if (vehicles.length === 0) {
     document.getElementById("vehicles-table").innerHTML =
-      '<div class="empty">No vehicles found.</div>';
+      '<div class="empty">No vehicles found.</div>' +
+      documentSummaryHtml("Vehicles", loadVehicles(), VEHICLE_FIELDS);
     return;
   }
   let html = `<table><thead><tr>
@@ -851,7 +872,8 @@ function renderVehicles() {
     </tr>`;
   });
   html += "</tbody></table>";
-  document.getElementById("vehicles-table").innerHTML = html;
+  document.getElementById("vehicles-table").innerHTML =
+    html + documentSummaryHtml("Vehicles", loadVehicles(), VEHICLE_FIELDS);
 }
 
 // ══════════ DRIVER MODAL ══════════
@@ -955,6 +977,19 @@ async function saveDriver() {
 
 // ══════════ VEHICLE MODAL ══════════
 let editVehicleIdx = -1;
+function populateAssignedDriverOptions(selectedDriver = "") {
+  const select = document.getElementById("v-driver");
+  const names = [...new Set(loadDrivers().map((driver) => driver.name).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b)
+  );
+  select.innerHTML = "";
+  select.append(new Option("Select driver", ""));
+  names.forEach((name) => select.append(new Option(name, name)));
+  if (selectedDriver && !names.includes(selectedDriver)) {
+    select.append(new Option(selectedDriver, selectedDriver));
+  }
+  select.value = selectedDriver || "";
+}
 function openVehicleModal(idx = -1) {
   editVehicleIdx = idx;
   const vehicles = loadVehicles();
@@ -967,7 +1002,7 @@ function openVehicleModal(idx = -1) {
   document.getElementById("v-year").value = v.year || "";
   document.getElementById("v-color").value = v.color || "";
   document.getElementById("v-type").value = v.type || "";
-  document.getElementById("v-driver").value = v.driver || "";
+  populateAssignedDriverOptions(v.driver || "");
   document.getElementById("v-insurance").value = v.insurance || "";
   document.getElementById("v-ishtamara").value = v.ishtamara || "";
   document.getElementById("v-tafweed").value = v.tafweed || "";
@@ -1016,7 +1051,7 @@ async function saveVehicle() {
       year: document.getElementById("v-year").value.trim(),
       color: document.getElementById("v-color").value.trim(),
       type: document.getElementById("v-type").value,
-      driver: document.getElementById("v-driver").value.trim(),
+      driver: document.getElementById("v-driver").value,
       insurance: document.getElementById("v-insurance").value,
       ishtamara: document.getElementById("v-ishtamara").value,
       tafweed: document.getElementById("v-tafweed").value,
@@ -1100,7 +1135,8 @@ function renderEmployees() {
   if (employees.length === 0) {
     html += `<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
     html += "</tbody></table>";
-    document.getElementById("employees-table").innerHTML = html;
+    document.getElementById("employees-table").innerHTML =
+      html + documentSummaryHtml("Employees", loadEmployees(), EMPLOYEE_FIELDS);
     return;
   }
 
@@ -1144,7 +1180,8 @@ function renderEmployees() {
     </tr>`;
   });
   html += "</tbody></table>";
-  document.getElementById("employees-table").innerHTML = html;
+  document.getElementById("employees-table").innerHTML =
+    html + documentSummaryHtml("Employees", loadEmployees(), EMPLOYEE_FIELDS);
 }
 
 // ══════════ EMPLOYEE MODAL ══════════
@@ -1261,7 +1298,8 @@ function renderViolationTable(kind) {
 
   if (rows.length === 0) {
     document.getElementById(config.tableId).innerHTML =
-      `<div class="empty">No ${config.label.toLowerCase()} records found.</div>`;
+      `<div class="empty">No ${config.label.toLowerCase()} records found.</div>` +
+      violationSummaryHtml(config.label, config.load());
     return;
   }
 
@@ -1310,7 +1348,8 @@ function renderViolationTable(kind) {
     </tr>`;
   });
   html += "</tbody></table>";
-  document.getElementById(config.tableId).innerHTML = html;
+  document.getElementById(config.tableId).innerHTML =
+    html + violationSummaryHtml(config.label, config.load());
 }
 
 function violationStatusBadge(status) {
