@@ -431,6 +431,134 @@ function violationSummaryHtml(label, records) {
     <span class="summary-invalid">Unpaid/Open: <strong>${unpaid}</strong></span>
   </div>`;
 }
+function formatExportDate(value) {
+  return value || "";
+}
+function mapRowsForExport(rows, columns) {
+  return rows.map((row) =>
+    Object.fromEntries(columns.map(([label, key]) => [label, formatExportDate(row[key])]))
+  );
+}
+function downloadSheet(kind) {
+  if (!window.XLSX) {
+    alert("Spreadsheet export is still loading. Please try again in a moment.");
+    return;
+  }
+
+  const configs = {
+    drivers: {
+      file: "drivers.xlsx",
+      sheet: "Drivers",
+      rows: loadDrivers(),
+      columns: [
+        ["Driver ID", "id"],
+        ["Name", "name"],
+        ["Iqama ID", "iqamaid"],
+        ["Phone", "phone"],
+        ["Nationality", "nationality"],
+        ["Department", "dept"],
+        ["Company", "company"],
+        ["Registration Number", "registrationno"],
+        ["Responsible", "responsible"],
+        ["Driver Type", "drivertype"],
+        ["Iqama Expiry", "iqama"],
+        ["Work Permit Expiry", "workpermit"],
+        ["Driving Licence Expiry", "license"],
+        ["Insurance Expiry", "insurance"],
+        ["Driver Card No.", "drivercardno"],
+        ["Driver Card Expiry", "drivercard"],
+        ["Ajeer Expiry", "ajeer"],
+        ["Passport Expiry", "passport"],
+      ],
+    },
+    vehicles: {
+      file: "vehicles.xlsx",
+      sheet: "Vehicles",
+      rows: loadVehicles(),
+      columns: [
+        ["Vehicle ID", "id"],
+        ["Plate Number", "plate"],
+        ["Make / Model", "make"],
+        ["Year", "year"],
+        ["Color", "color"],
+        ["Vehicle Type", "type"],
+        ["Assigned Driver", "driver"],
+        ["Insurance Expiry", "insurance"],
+        ["Ishtamara Expiry", "ishtamara"],
+        ["Tafweed Expiry", "tafweed"],
+        ["Operation Card No.", "operationcardno"],
+        ["Operation Card Expiry", "operationcardexpiry"],
+        ["Fahas Expiry", "fahas"],
+        ["GPS Status", "gps"],
+      ],
+    },
+    employees: {
+      file: "employees.xlsx",
+      sheet: "Employees",
+      rows: loadEmployees(),
+      columns: [
+        ["Employee ID", "id"],
+        ["Name", "name"],
+        ["Mobile Number", "mobile"],
+        ["Date of Birth", "dateofbirth"],
+        ["Iqama No.", "iqama"],
+        ["Company", "company"],
+        ["Occupation", "occupation"],
+        ["Date of Contract", "contractstart"],
+        ["End of Contract", "contractend"],
+        ["Iqama Expiry", "iqamaexpiry"],
+        ["Medical Insurance Expiry", "insurance"],
+        ["Ajeer Expiry", "ajeer"],
+        ["Passport Expiry", "passport"],
+      ],
+    },
+    maroor: {
+      file: "maroor-violations.xlsx",
+      sheet: "Maroor Violations",
+      rows: loadMaroorViolations(),
+      columns: [
+        ["Violation ID", "id"],
+        ["Violation No.", "violationno"],
+        ["Plate Number", "plate"],
+        ["Driver", "driver"],
+        ["Reference Violation No.", "referenceno"],
+        ["City", "city"],
+        ["Violation Date", "violationdate"],
+        ["Violation Time", "violationtime"],
+        ["Amount", "amount"],
+        ["Status", "status"],
+        ["Date Paid", "paiddate"],
+        ["Notes", "notes"],
+      ],
+    },
+    efaa: {
+      file: "efaa-violations.xlsx",
+      sheet: "Efaa Violations",
+      rows: loadEfaaViolations(),
+      columns: [
+        ["Violation ID", "id"],
+        ["Violation No.", "violationno"],
+        ["Plate Number", "plate"],
+        ["Driver", "driver"],
+        ["Reference Violation No.", "referenceno"],
+        ["City", "city"],
+        ["Violation Date", "violationdate"],
+        ["Violation Time", "violationtime"],
+        ["Amount", "amount"],
+        ["Status", "status"],
+        ["Date Paid", "paiddate"],
+        ["Notes", "notes"],
+      ],
+    },
+  };
+
+  const config = configs[kind];
+  if (!config) return;
+  const worksheet = XLSX.utils.json_to_sheet(mapRowsForExport(config.rows, config.columns));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, config.sheet);
+  XLSX.writeFile(workbook, config.file);
+}
 function fmtDate(d) {
   if (!d) return "—";
   return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {

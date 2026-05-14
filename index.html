@@ -141,6 +141,12 @@
               </svg>
               Add Driver
             </button>
+            <button class="btn-export" onclick="downloadSheet('drivers')" title="Download drivers XLSX">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              XLSX
+            </button>
             <div class="legend">
               <div class="legend-item">
                 <div class="legend-dot" style="background:var(--red)"></div>Expired
@@ -174,6 +180,12 @@
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
               </svg>
               Add Vehicle
+            </button>
+            <button class="btn-export" onclick="downloadSheet('vehicles')" title="Download vehicles XLSX">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              XLSX
             </button>
             <div class="legend">
               <div class="legend-item">
@@ -209,6 +221,12 @@
               </svg>
               Add Employee
             </button>
+            <button class="btn-export" onclick="downloadSheet('employees')" title="Download employees XLSX">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              XLSX
+            </button>
             <div class="legend">
               <div class="legend-item">
                 <div class="legend-dot" style="background:var(--red)"></div>Expired
@@ -243,6 +261,12 @@
               </svg>
               Add Violation
             </button>
+            <button class="btn-export" onclick="downloadSheet('maroor')" title="Download Maroor XLSX">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              XLSX
+            </button>
           </div>
           <div class="table-wrap" id="maroor-violations-table"></div>
         </div>
@@ -265,6 +289,12 @@
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
               </svg>
               Add Violation
+            </button>
+            <button class="btn-export" onclick="downloadSheet('efaa')" title="Download Efaa XLSX">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              XLSX
             </button>
           </div>
           <div class="table-wrap" id="efaa-violations-table"></div>
@@ -519,6 +549,7 @@
   <!-- </div> BEFORE <script> -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 
