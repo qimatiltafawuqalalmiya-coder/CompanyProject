@@ -572,6 +572,249 @@ function fmtTime(t) {
   return t ? t.slice(0, 5) : "-";
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function textValue(value) {
+  return escapeHtml(value || "—");
+}
+
+function dateValue(value) {
+  return escapeHtml(fmtDate(value));
+}
+
+function detailFieldsHtml(fields) {
+  return fields
+    .map(([label, value]) => `<div class="detail-field">
+      <div class="detail-label">${escapeHtml(label)}</div>
+      <div class="detail-value">${value}</div>
+    </div>`)
+    .join("");
+}
+
+function detailTableHtml(title, rows, columns, emptyText) {
+  if (!rows.length) {
+    return `<div class="detail-section">
+      <div class="detail-section-title">${escapeHtml(title)}</div>
+      <div class="detail-empty">${escapeHtml(emptyText)}</div>
+    </div>`;
+  }
+
+  return `<div class="detail-section">
+    <div class="detail-section-title">${escapeHtml(title)}</div>
+    <div class="detail-mini-table-wrap">
+      <table class="detail-mini-table">
+        <thead><tr>${columns.map(([label]) => `<th>${escapeHtml(label)}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `<tr>${columns
+                .map(([, render]) => `<td>${render(row)}</td>`)
+                .join("")}</tr>`
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function getDetailModal() {
+  let modal = document.getElementById("record-detail-modal");
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "record-detail-modal";
+  modal.className = "modal-overlay";
+  modal.innerHTML = `<div class="modal detail-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="record-detail-title"></div>
+        <div class="detail-subtitle" id="record-detail-subtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('record-detail-modal')">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+    <div id="record-detail-body"></div>
+  </div>`;
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function openRecordDetail(title, subtitle, bodyHtml) {
+  const modal = getDetailModal();
+  document.getElementById("record-detail-title").textContent = title;
+  document.getElementById("record-detail-subtitle").textContent = subtitle || "";
+  document.getElementById("record-detail-body").innerHTML = bodyHtml;
+  modal.classList.add("open");
+}
+
+function findDriverByName(name) {
+  const normalized = (name || "").trim().toLowerCase();
+  if (!normalized) return null;
+  return loadDrivers().find((driver) => (driver.name || "").trim().toLowerCase() === normalized) || null;
+}
+
+function showDriverDetails(idx) {
+  const driver = loadDrivers()[idx];
+  if (!driver) return;
+
+  const driverName = (driver.name || "").trim().toLowerCase();
+  const assignedVehicles = loadVehicles().filter(
+    (vehicle) => (vehicle.driver || "").trim().toLowerCase() === driverName
+  );
+  const relatedMaroor = loadMaroorViolations().filter(
+    (violation) => (violation.driver || "").trim().toLowerCase() === driverName
+  );
+  const relatedEfaa = loadEfaaViolations().filter(
+    (violation) => (violation.driver || "").trim().toLowerCase() === driverName
+  );
+
+  openRecordDetail(
+    driver.name || "Driver Details",
+    `${driver.id || "No ID"} · ${driver.drivertype || "Driver"}`,
+    `<div class="detail-grid">${detailFieldsHtml([
+      ["Driver ID", textValue(driver.id)],
+      ["Full Name", textValue(driver.name)],
+      ["Iqama ID No.", textValue(driver.iqamaid)],
+      ["Phone Number", textValue(driver.phone)],
+      ["Nationality", textValue(driver.nationality)],
+      ["Department", textValue(driver.dept)],
+      ["Company Name", textValue(driver.company)],
+      ["Registration Number", textValue(driver.registrationno)],
+      ["Responsible", textValue(driver.responsible)],
+      ["Driver Type", textValue(driver.drivertype)],
+      ["Iqama Expiry", dateValue(driver.iqama)],
+      ["Work Permit Expiry", dateValue(driver.workpermit)],
+      ["Driving Licence Expiry", dateValue(driver.license)],
+      ["Insurance Expiry", dateValue(driver.insurance)],
+      ["Driver Card No.", textValue(driver.drivercardno)],
+      ["Driver Card Expiry", dateValue(driver.drivercard)],
+      ["Ajeer Expiry", dateValue(driver.ajeer)],
+      ["Passport Expiry", dateValue(driver.passport)],
+    ])}</div>
+    ${detailTableHtml("Assigned Vehicles", assignedVehicles, [
+      ["ID", (vehicle) => textValue(vehicle.id)],
+      ["Plate", (vehicle) => textValue(vehicle.plate)],
+      ["Make / Model", (vehicle) => textValue(vehicle.make)],
+      ["Type", (vehicle) => textValue(vehicle.type)],
+      ["GPS", (vehicle) => textValue(vehicle.gps)],
+    ], "No vehicles assigned to this driver.")}
+    ${detailTableHtml("Maroor Violations", relatedMaroor, [
+      ["No.", (violation) => textValue(violation.violationno)],
+      ["Plate", (violation) => textValue(violation.plate)],
+      ["Date", (violation) => dateValue(violation.violationdate)],
+      ["Amount", (violation) => textValue(violation.amount)],
+      ["Status", (violation) => textValue(violation.status)],
+    ], "No Maroor violations for this driver.")}
+    ${detailTableHtml("Efaa Violations", relatedEfaa, [
+      ["No.", (violation) => textValue(violation.violationno)],
+      ["Plate", (violation) => textValue(violation.plate)],
+      ["Date", (violation) => dateValue(violation.violationdate)],
+      ["Amount", (violation) => textValue(violation.amount)],
+      ["Status", (violation) => textValue(violation.status)],
+    ], "No Efaa violations for this driver.")}`
+  );
+}
+
+function showVehicleDetails(idx) {
+  const vehicle = loadVehicles()[idx];
+  if (!vehicle) return;
+  const driver = findDriverByName(vehicle.driver);
+  const plate = (vehicle.plate || "").trim().toLowerCase();
+  const relatedMaroor = loadMaroorViolations().filter(
+    (violation) => (violation.plate || "").trim().toLowerCase() === plate
+  );
+  const relatedEfaa = loadEfaaViolations().filter(
+    (violation) => (violation.plate || "").trim().toLowerCase() === plate
+  );
+
+  openRecordDetail(
+    vehicle.plate || "Vehicle Details",
+    `${vehicle.id || "No ID"} · ${vehicle.make || "Vehicle"}`,
+    `<div class="detail-grid">${detailFieldsHtml([
+      ["Vehicle ID", textValue(vehicle.id)],
+      ["Plate Number", textValue(vehicle.plate)],
+      ["Make / Model", textValue(vehicle.make)],
+      ["Year", textValue(vehicle.year)],
+      ["Color", textValue(vehicle.color)],
+      ["Vehicle Type", textValue(vehicle.type)],
+      ["Assigned Driver", textValue(vehicle.driver)],
+      ["Insurance Expiry", dateValue(vehicle.insurance)],
+      ["Ishtamara Expiry", dateValue(vehicle.ishtamara)],
+      ["Tafweed Expiry", dateValue(vehicle.tafweed)],
+      ["Operation Card No.", textValue(vehicle.operationcardno)],
+      ["Operation Card Expiry", dateValue(vehicle.operationcardexpiry)],
+      ["Fahas Expiry", dateValue(vehicle.fahas)],
+      ["GPS Status", textValue(vehicle.gps)],
+    ])}</div>
+    ${driver ? `<div class="detail-section">
+      <div class="detail-section-title">Assigned Driver Data</div>
+      <div class="detail-grid">${detailFieldsHtml([
+        ["Driver ID", textValue(driver.id)],
+        ["Full Name", textValue(driver.name)],
+        ["Iqama ID No.", textValue(driver.iqamaid)],
+        ["Phone Number", textValue(driver.phone)],
+        ["Nationality", textValue(driver.nationality)],
+        ["Company", textValue(driver.company)],
+        ["Driver Type", textValue(driver.drivertype)],
+        ["Licence Expiry", dateValue(driver.license)],
+      ])}</div>
+    </div>` : `<div class="detail-section"><div class="detail-section-title">Assigned Driver Data</div><div class="detail-empty">No matching driver record found.</div></div>`}
+    ${detailTableHtml("Maroor Violations", relatedMaroor, [
+      ["No.", (violation) => textValue(violation.violationno)],
+      ["Driver", (violation) => textValue(violation.driver)],
+      ["Date", (violation) => dateValue(violation.violationdate)],
+      ["Amount", (violation) => textValue(violation.amount)],
+      ["Status", (violation) => textValue(violation.status)],
+    ], "No Maroor violations for this vehicle.")}
+    ${detailTableHtml("Efaa Violations", relatedEfaa, [
+      ["No.", (violation) => textValue(violation.violationno)],
+      ["Driver", (violation) => textValue(violation.driver)],
+      ["Date", (violation) => dateValue(violation.violationdate)],
+      ["Amount", (violation) => textValue(violation.amount)],
+      ["Status", (violation) => textValue(violation.status)],
+    ], "No Efaa violations for this vehicle.")}`
+  );
+}
+
+function showEmployeeDetails(idx) {
+  const employee = loadEmployees()[idx];
+  if (!employee) return;
+
+  openRecordDetail(
+    employee.name || "Employee Details",
+    `${employee.id || "No ID"} · ${employee.occupation || "Employee"}`,
+    `<div class="detail-grid">${detailFieldsHtml([
+      ["Employee ID", textValue(employee.id)],
+      ["Full Name", textValue(employee.name)],
+      ["Mobile Number", textValue(employee.mobile)],
+      ["Date of Birth", dateValue(employee.dateofbirth)],
+      ["Iqama No.", textValue(employee.iqama)],
+      ["Company", textValue(employee.company)],
+      ["Occupation", textValue(employee.occupation)],
+      ["Date of Contract", dateValue(employee.contractstart)],
+      ["End of Contract", dateValue(employee.contractend)],
+      ["Iqama Expiry", dateValue(employee.iqamaexpiry)],
+      ["Medical Insurance Expiry", dateValue(employee.insurance)],
+      ["Ajeer Expiry", dateValue(employee.ajeer)],
+      ["Passport Expiry", dateValue(employee.passport)],
+    ])}</div>`
+  );
+}
+
 const DRIVER_FIELDS = [
   "iqama",
   "workpermit",
@@ -874,7 +1117,7 @@ function renderDrivers() {
           ? "row-expiring"
           : "";
     const ri = allD.findIndex((x) => x.id === d.id);
-    html += `<tr class="${rc}">
+    html += `<tr class="${rc} clickable-row" onclick="showDriverDetails(${ri})" title="View driver details">
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${d.id || "—"
       }</span></td>
       <td>
@@ -901,10 +1144,10 @@ function renderDrivers() {
       }).join("")}
       <td>
         <div class="action-btns">
-          <button class="btn-icon edit" onclick="editDriver(${ri})" title="Edit">
+          <button class="btn-icon edit" onclick="event.stopPropagation(); editDriver(${ri})" title="Edit">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           </button>
-          <button class="btn-icon del" onclick="deleteDriver(${ri})" title="Delete">
+          <button class="btn-icon del" onclick="event.stopPropagation(); deleteDriver(${ri})" title="Delete">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           </button>
         </div>
@@ -959,7 +1202,7 @@ function renderVehicles() {
           ? "row-expiring"
           : "";
     const ri = allV.findIndex((x) => x.id === v.id);
-    html += `<tr class="${rc}">
+    html += `<tr class="${rc} clickable-row" onclick="showVehicleDetails(${ri})" title="View vehicle details">
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.id || "—"
       }</span></td>
       <td>
@@ -989,10 +1232,10 @@ function renderVehicles() {
       }</td>
       <td>
         <div class="action-btns">
-          <button class="btn-icon edit" onclick="editVehicle(${ri})" title="Edit">
+          <button class="btn-icon edit" onclick="event.stopPropagation(); editVehicle(${ri})" title="Edit">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           </button>
-          <button class="btn-icon del" onclick="deleteVehicle(${ri})" title="Delete">
+          <button class="btn-icon del" onclick="event.stopPropagation(); deleteVehicle(${ri})" title="Delete">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           </button>
         </div>
@@ -1278,7 +1521,7 @@ function renderEmployees() {
           ? "row-expiring"
           : "";
     const ri = allE.findIndex((x) => x.id === e.id);
-    html += `<tr class="${rc}">
+    html += `<tr class="${rc} clickable-row" onclick="showEmployeeDetails(${ri})" title="View employee details">
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.id || "â€”"}</td>
       <td>
         <div style="font-weight:500">${e.name}</div>
@@ -1297,10 +1540,10 @@ function renderEmployees() {
       <td>${statusLabel(daysUntil(e.passport))}<div class="date-sub">${fmtDate(e.passport)}</div></td>
       <td>
         <div class="action-btns">
-          <button class="btn-icon edit" onclick="editEmployee(${ri})" title="Edit">
+          <button class="btn-icon edit" onclick="event.stopPropagation(); editEmployee(${ri})" title="Edit">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           </button>
-          <button class="btn-icon del" onclick="deleteEmployee(${ri})" title="Delete">
+          <button class="btn-icon del" onclick="event.stopPropagation(); deleteEmployee(${ri})" title="Delete">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           </button>
         </div>

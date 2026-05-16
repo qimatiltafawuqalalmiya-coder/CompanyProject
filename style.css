@@ -590,6 +590,14 @@ tr:hover td {
   filter: brightness(.97);
 }
 
+tr.clickable-row {
+  cursor: pointer;
+}
+
+tr.clickable-row:hover td {
+  background: var(--accent-light);
+}
+
 .list-summary {
   display: flex;
   align-items: center;
@@ -721,6 +729,83 @@ tr:hover td {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
+}
+
+.detail-modal {
+  width: min(880px, 96vw);
+}
+
+.detail-subtitle {
+  margin-top: 4px;
+  color: var(--text2);
+  font-size: 13px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detail-field {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface2);
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.detail-label {
+  color: var(--text3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.detail-value {
+  color: var(--text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.detail-section {
+  margin-top: 18px;
+}
+
+.detail-section-title {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+}
+
+.detail-empty {
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  color: var(--text3);
+  background: var(--surface2);
+  padding: 14px;
+  font-size: 13px;
+}
+
+.detail-mini-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.detail-mini-table {
+  min-width: 0;
+}
+
+.detail-mini-table th,
+.detail-mini-table td {
+  padding: 9px 10px;
+  font-size: 12px;
 }
 
 .modal-overlay.open .modal {
@@ -1118,6 +1203,39 @@ tr:hover td {
     letter-spacing: .05em;
   }
 
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-mini-table {
+    min-width: 520px;
+  }
+
+  .detail-mini-table thead {
+    display: table-header-group;
+  }
+
+  .detail-mini-table tbody {
+    display: table-row-group;
+  }
+
+  .detail-mini-table tr {
+    display: table-row;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .detail-mini-table th,
+  .detail-mini-table td {
+    display: table-cell;
+    width: auto;
+    text-align: left;
+  }
+
+  .detail-mini-table td::before {
+    display: none;
+  }
+
   td:first-child {
     display: block;
     text-align: left;
@@ -1353,6 +1471,35 @@ tr:hover td {
   #maroor-violations-table td:nth-child(13)::before,
   #efaa-violations-table td:nth-child(13)::before {
     content: "Actions";
+  }
+
+  .detail-mini-table thead {
+    display: table-header-group;
+  }
+
+  .detail-mini-table tbody {
+    display: table-row-group;
+  }
+
+  .detail-mini-table tr {
+    display: table-row;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .detail-mini-table th,
+  .detail-mini-table td,
+  .detail-mini-table td:first-child {
+    display: table-cell;
+    width: auto;
+    text-align: left;
+    padding: 9px 10px;
+  }
+
+  .detail-mini-table td::before,
+  .detail-mini-table td:first-child::before {
+    display: none;
+    content: "";
   }
 }
 
