@@ -126,6 +126,18 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by name, ID, nationality…"
               oninput="renderDrivers()" id="driver-search">
+            <select class="table-filter" id="driver-type-filter" onchange="renderDrivers()" title="Filter by driver type">
+              <option value="">All Types</option>
+              <option value="service">Services</option>
+              <option value="outsource">Outsource</option>
+              <option value="owned">Owned</option>
+            </select>
+            <select class="table-filter" id="driver-sort" onchange="renderDrivers()" title="Sort drivers">
+              <option value="date-asc">Nearest Date</option>
+              <option value="date-desc">Latest Date</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="id-asc">ID A-Z</option>
+            </select>
             <button class="btn-add" onclick="openDriverModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -166,6 +178,12 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by plate, driver, operation card…"
               oninput="renderVehicles()" id="vehicle-search">
+            <select class="table-filter" id="vehicle-sort" onchange="renderVehicles()" title="Sort vehicles">
+              <option value="date-asc">Nearest Date</option>
+              <option value="date-desc">Latest Date</option>
+              <option value="plate-asc">Plate A-Z</option>
+              <option value="id-asc">ID A-Z</option>
+            </select>
             <button class="btn-add" onclick="openVehicleModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -206,6 +224,12 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by name, Iqama, company, occupation…"
               oninput="renderEmployees()" id="employee-search">
+            <select class="table-filter" id="employee-sort" onchange="renderEmployees()" title="Sort employees">
+              <option value="date-asc">Nearest Date</option>
+              <option value="date-desc">Latest Date</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="id-asc">ID A-Z</option>
+            </select>
             <button class="btn-add" onclick="openEmployeeModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -246,6 +270,13 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderMaroorViolations()" id="maroor-violation-search">
+            <select class="table-filter" id="maroor-violation-sort" onchange="renderMaroorViolations()" title="Sort Maroor violations">
+              <option value="date-desc">Newest Date</option>
+              <option value="date-asc">Oldest Date</option>
+              <option value="amount-desc">Amount High-Low</option>
+              <option value="amount-asc">Amount Low-High</option>
+              <option value="status-asc">Status A-Z</option>
+            </select>
             <button class="btn-add" onclick="openMaroorViolationModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -275,6 +306,13 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderEfaaViolations()" id="efaa-violation-search">
+            <select class="table-filter" id="efaa-violation-sort" onchange="renderEfaaViolations()" title="Sort Efaa violations">
+              <option value="date-desc">Newest Date</option>
+              <option value="date-asc">Oldest Date</option>
+              <option value="amount-desc">Amount High-Low</option>
+              <option value="amount-asc">Amount Low-High</option>
+              <option value="status-asc">Status A-Z</option>
+            </select>
             <button class="btn-add" onclick="openEfaaViolationModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />

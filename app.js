@@ -589,6 +589,59 @@ function dateValue(value) {
   return escapeHtml(fmtDate(value));
 }
 
+function dateSortValue(value) {
+  if (!value) return Number.POSITIVE_INFINITY;
+  const time = new Date(value + "T00:00:00").getTime();
+  return Number.isFinite(time) ? time : Number.POSITIVE_INFINITY;
+}
+
+function earliestDateValue(record, fields) {
+  return Math.min(...fields.map((field) => dateSortValue(record[field])));
+}
+
+function compareText(a, b) {
+  return String(a || "").localeCompare(String(b || ""), undefined, { numeric: true, sensitivity: "base" });
+}
+
+function amountValue(value) {
+  const parsed = Number(String(value || "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortRecords(rows, sortValue, dateFields = []) {
+  const sorted = [...rows];
+  sorted.sort((a, b) => {
+    if (sortValue === "date-desc") {
+      const aDate = earliestDateValue(a, dateFields);
+      const bDate = earliestDateValue(b, dateFields);
+      if (!Number.isFinite(aDate)) return 1;
+      if (!Number.isFinite(bDate)) return -1;
+      return bDate - aDate;
+    }
+    if (sortValue === "name-asc") return compareText(a.name, b.name);
+    if (sortValue === "plate-asc") return compareText(a.plate, b.plate);
+    if (sortValue === "id-asc") return compareText(a.id, b.id);
+    return earliestDateValue(a, dateFields) - earliestDateValue(b, dateFields);
+  });
+  return sorted;
+}
+
+function sortViolations(rows, sortValue) {
+  const sorted = [...rows];
+  sorted.sort((a, b) => {
+    if (sortValue === "date-asc") return dateSortValue(a.violationdate) - dateSortValue(b.violationdate);
+    if (sortValue === "amount-desc") return amountValue(b.amount) - amountValue(a.amount);
+    if (sortValue === "amount-asc") return amountValue(a.amount) - amountValue(b.amount);
+    if (sortValue === "status-asc") return compareText(a.status, b.status);
+    const aDate = dateSortValue(a.violationdate);
+    const bDate = dateSortValue(b.violationdate);
+    if (!Number.isFinite(aDate)) return 1;
+    if (!Number.isFinite(bDate)) return -1;
+    return bDate - aDate;
+  });
+  return sorted;
+}
+
 function detailFieldsHtml(fields) {
   return fields
     .map(([label, value]) => `<div class="detail-field">
@@ -645,6 +698,7 @@ function getDetailModal() {
       </button>
     </div>
     <div id="record-detail-body"></div>
+    <div class="detail-actions" id="record-detail-actions"></div>
   </div>`;
   modal.addEventListener("click", (e) => {
     if (e.target === modal) modal.classList.remove("open");
@@ -653,11 +707,12 @@ function getDetailModal() {
   return modal;
 }
 
-function openRecordDetail(title, subtitle, bodyHtml) {
+function openRecordDetail(title, subtitle, bodyHtml, actionsHtml = "") {
   const modal = getDetailModal();
   document.getElementById("record-detail-title").textContent = title;
   document.getElementById("record-detail-subtitle").textContent = subtitle || "";
   document.getElementById("record-detail-body").innerHTML = bodyHtml;
+  document.getElementById("record-detail-actions").innerHTML = actionsHtml;
   modal.classList.add("open");
 }
 
@@ -665,6 +720,11 @@ function findDriverByName(name) {
   const normalized = (name || "").trim().toLowerCase();
   if (!normalized) return null;
   return loadDrivers().find((driver) => (driver.name || "").trim().toLowerCase() === normalized) || null;
+}
+
+function detailActionButtons(editCall) {
+  return `<button class="btn-cancel" onclick="closeModal('record-detail-modal')">Cancel</button>
+    <button class="btn-save" onclick="closeModal('record-detail-modal'); ${editCall}">Edit</button>`;
 }
 
 function showDriverDetails(idx) {
@@ -725,7 +785,8 @@ function showDriverDetails(idx) {
       ["Date", (violation) => dateValue(violation.violationdate)],
       ["Amount", (violation) => textValue(violation.amount)],
       ["Status", (violation) => textValue(violation.status)],
-    ], "No Efaa violations for this driver.")}`
+    ], "No Efaa violations for this driver.")}`,
+    detailActionButtons(`editDriver(${idx})`)
   );
 }
 
@@ -786,7 +847,8 @@ function showVehicleDetails(idx) {
       ["Date", (violation) => dateValue(violation.violationdate)],
       ["Amount", (violation) => textValue(violation.amount)],
       ["Status", (violation) => textValue(violation.status)],
-    ], "No Efaa violations for this vehicle.")}`
+    ], "No Efaa violations for this vehicle.")}`,
+    detailActionButtons(`editVehicle(${idx})`)
   );
 }
 
@@ -811,7 +873,8 @@ function showEmployeeDetails(idx) {
       ["Medical Insurance Expiry", dateValue(employee.insurance)],
       ["Ajeer Expiry", dateValue(employee.ajeer)],
       ["Passport Expiry", dateValue(employee.passport)],
-    ])}</div>`
+    ])}</div>`,
+    detailActionButtons(`editEmployee(${idx})`)
   );
 }
 
@@ -1073,9 +1136,11 @@ function renderDrivers() {
   const q = (
     document.getElementById("driver-search")?.value || ""
   ).toLowerCase();
-  const drivers = loadDrivers().filter(
+  const typeFilter = (document.getElementById("driver-type-filter")?.value || "").toLowerCase();
+  const sortValue = document.getElementById("driver-sort")?.value || "date-asc";
+  const drivers = sortRecords(loadDrivers().filter(
     (d) =>
-      d.name.toLowerCase().includes(q) ||
+      ((d.name || "").toLowerCase().includes(q) ||
       (d.id || "").toLowerCase().includes(q) ||
       (d.iqamaid || "").includes(q) ||
       (d.drivercardno || "").toLowerCase().includes(q) ||
@@ -1084,8 +1149,9 @@ function renderDrivers() {
       (d.company || "").toLowerCase().includes(q) ||
       (d.registrationno || "").toLowerCase().includes(q) ||
       (d.responsible || "").toLowerCase().includes(q) ||
-      (d.drivertype || "").toLowerCase().includes(q)
-  );
+      (d.drivertype || "").toLowerCase().includes(q)) &&
+      (!typeFilter || (d.drivertype || "").toLowerCase() === typeFilter || (typeFilter === "service" && (d.drivertype || "").toLowerCase() === "services"))
+  ), sortValue, DRIVER_FIELDS);
   if (drivers.length === 0) {
     document.getElementById("drivers-table").innerHTML =
       '<div class="empty">No drivers found.</div>' +
@@ -1164,14 +1230,15 @@ function renderVehicles() {
   const q = (
     document.getElementById("vehicle-search")?.value || ""
   ).toLowerCase();
-  const vehicles = loadVehicles().filter(
+  const sortValue = document.getElementById("vehicle-sort")?.value || "date-asc";
+  const vehicles = sortRecords(loadVehicles().filter(
     (v) =>
       (v.plate || "").toLowerCase().includes(q) ||
       (v.id || "").toLowerCase().includes(q) ||
       (v.make || "").toLowerCase().includes(q) ||
       (v.operationcardno || "").toLowerCase().includes(q) ||
       (v.driver || "").toLowerCase().includes(q)
-  );
+  ), sortValue, VEHICLE_FIELDS);
   if (vehicles.length === 0) {
     document.getElementById("vehicles-table").innerHTML =
       '<div class="empty">No vehicles found.</div>' +
@@ -1478,7 +1545,8 @@ function renderEmployees() {
   const q = (
     document.getElementById("employee-search")?.value || ""
   ).toLowerCase();
-  const employees = loadEmployees().filter(
+  const sortValue = document.getElementById("employee-sort")?.value || "date-asc";
+  const employees = sortRecords(loadEmployees().filter(
     (e) =>
       (e.id || "").toLowerCase().includes(q) ||
       (e.name || "").toLowerCase().includes(q) ||
@@ -1486,7 +1554,7 @@ function renderEmployees() {
       (e.occupation || "").toLowerCase().includes(q) ||
       (e.company || "").toLowerCase().includes(q) ||
       (e.mobile || "").includes(q)
-  );
+  ), sortValue, EMPLOYEE_FIELDS);
   let html = `<table><thead><tr>
     <th>Employee ID</th>
     <th>Name</th>
@@ -1656,7 +1724,8 @@ async function saveEmployee() {
 function renderViolationTable(kind) {
   const config = getViolationConfig(kind);
   const q = (document.getElementById(config.searchId)?.value || "").toLowerCase();
-  const rows = config.load().filter(
+  const sortValue = document.getElementById(config.sortId)?.value || "date-desc";
+  const rows = sortViolations(config.load().filter(
     (v) =>
       (v.id || "").toLowerCase().includes(q) ||
       (v.violationno || "").toLowerCase().includes(q) ||
@@ -1665,7 +1734,7 @@ function renderViolationTable(kind) {
       (v.driver || "").toLowerCase().includes(q) ||
       (v.city || "").toLowerCase().includes(q) ||
       (v.status || "").toLowerCase().includes(q)
-  );
+  ), sortValue);
 
   if (rows.length === 0) {
     document.getElementById(config.tableId).innerHTML =
@@ -1693,7 +1762,7 @@ function renderViolationTable(kind) {
   const allRows = config.load();
   rows.forEach((v) => {
     const ri = allRows.findIndex((x) => x === v);
-    html += `<tr>
+    html += `<tr class="clickable-row" onclick="showViolationDetails('${kind}', ${ri})" title="View ${config.label.toLowerCase()} details">
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.id || "—"}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.violationno || "—"}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${v.plate || "—"}</td>
@@ -1708,10 +1777,10 @@ function renderViolationTable(kind) {
       <td style="color:var(--text2);font-size:13px">${v.notes || "—"}</td>
       <td>
         <div class="action-btns">
-          <button class="btn-icon edit" onclick="${config.editFn}(${ri})" title="Edit">
+          <button class="btn-icon edit" onclick="event.stopPropagation(); ${config.editFn}(${ri})" title="Edit">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           </button>
-          <button class="btn-icon del" onclick="${config.deleteFn}(${ri})" title="Delete">
+          <button class="btn-icon del" onclick="event.stopPropagation(); ${config.deleteFn}(${ri})" title="Delete">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           </button>
         </div>
@@ -1738,6 +1807,7 @@ function getViolationConfig(kind) {
       titleId: "maroor-violation-modal-title",
       tableId: "maroor-violations-table",
       searchId: "maroor-violation-search",
+      sortId: "maroor-violation-sort",
       prefix: "mrv",
       idPrefix: "MRV",
       table: "maroor_violations",
@@ -1753,6 +1823,7 @@ function getViolationConfig(kind) {
       titleId: "efaa-violation-modal-title",
       tableId: "efaa-violations-table",
       searchId: "efaa-violation-search",
+      sortId: "efaa-violation-sort",
       prefix: "efv",
       idPrefix: "EFV",
       table: "efaa_violations",
@@ -1762,6 +1833,63 @@ function getViolationConfig(kind) {
       editFn: "editEfaaViolation",
       deleteFn: "deleteEfaaViolation",
     };
+}
+
+function findVehicleByPlate(plate) {
+  const normalized = (plate || "").trim().toLowerCase();
+  if (!normalized) return null;
+  return loadVehicles().find((vehicle) => (vehicle.plate || "").trim().toLowerCase() === normalized) || null;
+}
+
+function showViolationDetails(kind, idx) {
+  const config = getViolationConfig(kind);
+  const violation = config.load()[idx];
+  if (!violation) return;
+
+  const driver = findDriverByName(violation.driver);
+  const vehicle = findVehicleByPlate(violation.plate);
+
+  openRecordDetail(
+    violation.violationno || `${config.label} Details`,
+    `${violation.id || "No ID"} - ${violation.plate || "No plate"} - ${violation.status || "No status"}`,
+    `<div class="detail-grid">${detailFieldsHtml([
+      ["Violation ID", textValue(violation.id)],
+      ["Violation No.", textValue(violation.violationno)],
+      ["Plate Number", textValue(violation.plate)],
+      ["Driver", textValue(violation.driver)],
+      ["Violation Date", dateValue(violation.violationdate)],
+      ["Time Of Violation", textValue(fmtTime(violation.violationtime))],
+      ["Reference Violation No.", textValue(violation.referenceno)],
+      ["City Of Violation", textValue(violation.city)],
+      ["Amount", textValue(violation.amount)],
+      ["Status", textValue(violation.status)],
+      ["Date Of Paid", violation.status === "Paid" ? dateValue(violation.paiddate) : textValue("-")],
+      ["Notes", textValue(violation.notes)],
+    ])}</div>
+    ${driver ? `<div class="detail-section">
+      <div class="detail-section-title">Driver Data</div>
+      <div class="detail-grid">${detailFieldsHtml([
+        ["Driver ID", textValue(driver.id)],
+        ["Full Name", textValue(driver.name)],
+        ["Iqama ID No.", textValue(driver.iqamaid)],
+        ["Phone Number", textValue(driver.phone)],
+        ["Company", textValue(driver.company)],
+        ["Driver Type", textValue(driver.drivertype)],
+      ])}</div>
+    </div>` : `<div class="detail-section"><div class="detail-section-title">Driver Data</div><div class="detail-empty">No matching driver record found.</div></div>`}
+    ${vehicle ? `<div class="detail-section">
+      <div class="detail-section-title">Vehicle Data</div>
+      <div class="detail-grid">${detailFieldsHtml([
+        ["Vehicle ID", textValue(vehicle.id)],
+        ["Plate Number", textValue(vehicle.plate)],
+        ["Make / Model", textValue(vehicle.make)],
+        ["Vehicle Type", textValue(vehicle.type)],
+        ["GPS Status", textValue(vehicle.gps)],
+        ["Assigned Driver", textValue(vehicle.driver)],
+      ])}</div>
+    </div>` : `<div class="detail-section"><div class="detail-section-title">Vehicle Data</div><div class="detail-empty">No matching vehicle record found.</div></div>`}`,
+    detailActionButtons(`${config.editFn}(${idx})`)
+  );
 }
 
 let editMaroorViolationIdx = -1;
