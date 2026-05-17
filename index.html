@@ -44,8 +44,11 @@
     <div class="sidebar">
       <div class="sidebar-logo">
         <img class="brand-logo brand-logo-sidebar" src="assets/logo.png" alt="Qima Al Tafawuq logo">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
       </div>
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" id="sidebar-nav">
         <div class="nav-item active" onclick="showPage('dashboard')">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
@@ -505,8 +508,8 @@
         <div class="modal-group"><label>Violation ID</label><input id="mrv-id" placeholder="e.g. MRV001"></div>
         <div class="modal-group"><label>Violation No.</label><input id="mrv-violationno" placeholder="Violation number">
         </div>
-        <div class="modal-group"><label>Plate Number</label><input id="mrv-plate" placeholder="ABC-1234"></div>
-        <div class="modal-group"><label>Driver</label><input id="mrv-driver" placeholder="Driver name"></div>
+        <div class="modal-group"><label>Plate Number *</label><select id="mrv-plate"><option value="">Select plate...</option></select></div>
+        <div class="modal-group"><label>Driver *</label><select id="mrv-driver"><option value="">Select driver...</option></select></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="mrv-violationdate"></div>
         <div class="modal-group"><label>Time Of Violation</label><input type="time" id="mrv-violationtime"></div>
         <div class="modal-group"><label>Reference Violation No.</label><input id="mrv-referenceno"
@@ -548,8 +551,8 @@
         <div class="modal-group"><label>Violation ID</label><input id="efv-id" placeholder="e.g. EFV001"></div>
         <div class="modal-group"><label>Violation No.</label><input id="efv-violationno" placeholder="Violation number">
         </div>
-        <div class="modal-group"><label>Plate Number</label><input id="efv-plate" placeholder="ABC-1234"></div>
-        <div class="modal-group"><label>Driver</label><input id="efv-driver" placeholder="Driver name"></div>
+        <div class="modal-group"><label>Plate Number *</label><select id="efv-plate"><option value="">Select plate...</option></select></div>
+        <div class="modal-group"><label>Driver *</label><select id="efv-driver"><option value="">Select driver...</option></select></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="efv-violationdate"></div>
         <div class="modal-group"><label>Time Of Violation</label><input type="time" id="efv-violationtime"></div>
         <div class="modal-group"><label>Reference Violation No.</label><input id="efv-referenceno"
@@ -580,6 +583,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
+  <script>
+    function toggleMobileNav() {
+      const nav = document.getElementById('sidebar-nav');
+      const toggle = document.getElementById('mobile-menu-toggle');
+      if (nav) {
+        nav.classList.toggle('nav-collapsed');
+        toggle.classList.toggle('active');
+      }
+    }
+  </script>
 </body>
 
 </html>
