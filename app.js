@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
+﻿const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHdzdXptcnZtZ3VxcWxqaXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3MDYsImV4cCI6MjA5NDA2OTcwNn0._kRUs0cqkGMu2bffoE4mo9SOIAkdqOA0JRVCgONVf00";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -736,10 +736,10 @@ function showDriverDetails(idx) {
     (vehicle) => (vehicle.driver || "").trim().toLowerCase() === driverName
   );
   const relatedMaroor = loadMaroorViolations().filter(
-    (violation) => (violation.driver || "").trim().toLowerCase() === driverName
+    (violation) => (violation.driver || "").trim().toLowerCase() === driverName && violation.status !== "Paid"
   );
   const relatedEfaa = loadEfaaViolations().filter(
-    (violation) => (violation.driver || "").trim().toLowerCase() === driverName
+    (violation) => (violation.driver || "").trim().toLowerCase() === driverName && violation.status !== "Paid"
   );
 
   openRecordDetail(
@@ -796,10 +796,10 @@ function showVehicleDetails(idx) {
   const driver = findDriverByName(vehicle.driver);
   const plate = (vehicle.plate || "").trim().toLowerCase();
   const relatedMaroor = loadMaroorViolations().filter(
-    (violation) => (violation.plate || "").trim().toLowerCase() === plate
+    (violation) => (violation.plate || "").trim().toLowerCase() === plate && violation.status !== "Paid"
   );
   const relatedEfaa = loadEfaaViolations().filter(
-    (violation) => (violation.plate || "").trim().toLowerCase() === plate
+    (violation) => (violation.plate || "").trim().toLowerCase() === plate && violation.status !== "Paid"
   );
 
   openRecordDetail(
@@ -935,12 +935,12 @@ async function showPage(name) {
   [["dashboard", "drivers", "vehicles", "employees", "maroor-violations", "efaa-violations"].indexOf(name)].classList.add(
     "active"
   );
-  if (name === "dashboard") renderDashboard();
-  if (name === "drivers") renderDrivers();
-  if (name === "vehicles") renderVehicles();
-  if (name === "employees") renderEmployees();
-  if (name === "maroor-violations") renderMaroorViolations();
-  if (name === "efaa-violations") renderEfaaViolations();
+  if (name === "dashboard") { renderDashboard(); }
+  else if (name === "drivers") { if (driversCache.length === 0) { refreshDrivers().then(() => renderDrivers()); } else { renderDrivers(); } }
+  else if (name === "vehicles") { if (vehiclesCache.length === 0) { refreshVehicles().then(() => renderVehicles()); } else { renderVehicles(); } }
+  else if (name === "employees") { if (employeesCache.length === 0) { refreshEmployees().then(() => renderEmployees()); } else { renderEmployees(); } }
+  else if (name === "maroor-violations") { if (maroorViolationsCache.length === 0) { refreshMaroorViolations().then(() => renderMaroorViolations()); } else { renderMaroorViolations(); } }
+  else if (name === "efaa-violations") { if (efaaViolationsCache.length === 0) { refreshEfaaViolations().then(() => renderEfaaViolations()); } else { renderEfaaViolations(); } }
 }
 
 // ══════════ DASHBOARD ══════════
@@ -1909,6 +1909,37 @@ function applyViolationRowFilter(query, row) {
   return query.eq("id", row.id);
 }
 
+
+function populateViolationDropdowns(prefix, selectedPlate, selectedDriver) {
+  // Populate plate dropdown from registered vehicles
+  const plateSelect = document.getElementById(`${prefix}-plate`);
+  const driverSelect = document.getElementById(`${prefix}-driver`);
+  if (!plateSelect || !driverSelect) return;
+
+  const plates = [...new Set(loadVehicles().map((v) => v.plate).filter(Boolean))].sort();
+  plateSelect.innerHTML = '<option value="">Select plate...</option>';
+  plates.forEach((plate) => {
+    const opt = new Option(plate, plate);
+    plateSelect.appendChild(opt);
+  });
+  // Add the saved plate if it's not already there (backward-compat)
+  if (selectedPlate && !plates.includes(selectedPlate)) {
+    plateSelect.appendChild(new Option(selectedPlate, selectedPlate));
+  }
+  plateSelect.value = selectedPlate || '';
+
+  // Populate driver dropdown from registered drivers
+  const driverNames = [...new Set(loadDrivers().map((d) => d.name).filter(Boolean))].sort();
+  driverSelect.innerHTML = '<option value="">Select driver...</option>';
+  driverNames.forEach((name) => {
+    driverSelect.appendChild(new Option(name, name));
+  });
+  if (selectedDriver && !driverNames.includes(selectedDriver)) {
+    driverSelect.appendChild(new Option(selectedDriver, selectedDriver));
+  }
+  driverSelect.value = selectedDriver || '';
+}
+
 function openViolationModal(kind, idx = -1) {
   const config = getViolationConfig(kind);
   if (kind === "maroor") editMaroorViolationIdx = idx;
@@ -1918,20 +1949,20 @@ function openViolationModal(kind, idx = -1) {
   const v = idx >= 0 ? rows[idx] : {};
   document.getElementById(config.titleId).textContent =
     idx >= 0 ? `Edit ${config.label}` : `Add ${config.label}`;
-  document.getElementById(`${config.prefix}-id`).value = v.id || "";
-  document.getElementById(`${config.prefix}-violationno`).value = v.violationno || "";
-  document.getElementById(`${config.prefix}-plate`).value = v.plate || "";
-  document.getElementById(`${config.prefix}-driver`).value = v.driver || "";
-  document.getElementById(`${config.prefix}-violationdate`).value = v.violationdate || "";
-  document.getElementById(`${config.prefix}-violationtime`).value = v.violationtime || "";
-  document.getElementById(`${config.prefix}-referenceno`).value = v.referenceno || "";
-  document.getElementById(`${config.prefix}-city`).value = v.city || "";
-  document.getElementById(`${config.prefix}-amount`).value = v.amount || "";
-  document.getElementById(`${config.prefix}-status`).value = v.status || "";
-  document.getElementById(`${config.prefix}-paiddate`).value = v.paiddate || "";
-  document.getElementById(`${config.prefix}-notes`).value = v.notes || "";
+  document.getElementById(`${config.prefix}-id`).value = v.id || '';
+  document.getElementById(`${config.prefix}-violationno`).value = v.violationno || '';
+  // Populate dropdowns BEFORE setting their values
+  populateViolationDropdowns(config.prefix, v.plate || '', v.driver || '');
+  document.getElementById(`${config.prefix}-violationdate`).value = v.violationdate || '';
+  document.getElementById(`${config.prefix}-violationtime`).value = v.violationtime || '';
+  document.getElementById(`${config.prefix}-referenceno`).value = v.referenceno || '';
+  document.getElementById(`${config.prefix}-city`).value = v.city || '';
+  document.getElementById(`${config.prefix}-amount`).value = v.amount || '';
+  document.getElementById(`${config.prefix}-status`).value = v.status || '';
+  document.getElementById(`${config.prefix}-paiddate`).value = v.paiddate || '';
+  document.getElementById(`${config.prefix}-notes`).value = v.notes || '';
   togglePaidDateField(config.prefix);
-  document.getElementById(config.modalId).classList.add("open");
+  document.getElementById(config.modalId).classList.add('open');
 }
 
 async function saveViolation(kind) {
