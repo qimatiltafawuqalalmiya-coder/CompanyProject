@@ -1839,6 +1839,17 @@ function renderEmployees() {
   ).toLowerCase();
   const sortValue = document.getElementById("employee-sort")?.value || "date-asc";
   const natFilter = document.getElementById("employee-nat-filter")?.value || "";
+  const allEmployees = loadEmployees();
+  let summaryRecords = allEmployees;
+  let summaryLabel = "Employees";
+
+  if (natFilter === "saudi") {
+    summaryRecords = allEmployees.filter((e) => (e.nationality || "").trim().toLowerCase() === "saudi");
+    summaryLabel = "Saudi Employees";
+  } else if (natFilter === "non-saudi") {
+    summaryRecords = allEmployees.filter((e) => (e.nationality || "").trim().toLowerCase() !== "saudi");
+    summaryLabel = "Non-Saudi Employees";
+  }
 
   const filteredEmployees = loadEmployees().filter((e) => {
     const matchesSearch =
@@ -1885,7 +1896,7 @@ function renderEmployees() {
     html += `<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
     html += "</tbody></table>";
     document.getElementById("employees-table").innerHTML =
-      html + documentSummaryHtml("Employees", loadEmployees(), EMPLOYEE_FIELDS);
+      html + documentSummaryHtml(summaryLabel, summaryRecords, EMPLOYEE_FIELDS);
     return;
   }
 
@@ -1930,7 +1941,7 @@ function renderEmployees() {
   });
   html += "</tbody></table>";
   document.getElementById("employees-table").innerHTML =
-    html + documentSummaryHtml("Employees", loadEmployees(), EMPLOYEE_FIELDS);
+    html + documentSummaryHtml(summaryLabel, summaryRecords, EMPLOYEE_FIELDS);
 }
 
 // ══════════ EMPLOYEE MODAL ══════════
