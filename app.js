@@ -1,4 +1,4 @@
-﻿const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
+const SUPABASE_URL = "https://hvhwsuzmrvmguqqljiqb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHdzdXptcnZtZ3VxcWxqaXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3MDYsImV4cCI6MjA5NDA2OTcwNn0._kRUs0cqkGMu2bffoE4mo9SOIAkdqOA0JRVCgONVf00";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -503,6 +503,7 @@ function downloadSheet(kind) {
         ["Date of Birth", "dateofbirth"],
         ["Iqama No.", "iqama"],
         ["Company", "company"],
+        ["Nationality", "nationality"],
         ["Occupation", "occupation"],
         ["Date of Contract", "contractstart"],
         ["End of Contract", "contractend"],
@@ -610,6 +611,13 @@ function amountValue(value) {
 
 function sortRecords(rows, sortValue, dateFields = []) {
   const sorted = [...rows];
+  const allDateFields = new Set([
+    "iqama", "workpermit", "license", "insurance", "drivercard", "ajeer", "passport", "medical", "visa",
+    "ishtamara", "tafweed", "operationcardexpiry", "fahas",
+    "dateofbirth", "contractstart", "contractend", "iqamaexpiry",
+    "violationdate", "paiddate"
+  ]);
+
   sorted.sort((a, b) => {
     if (sortValue === "date-desc") {
       const aDate = earliestDateValue(a, dateFields);
@@ -618,26 +626,89 @@ function sortRecords(rows, sortValue, dateFields = []) {
       if (!Number.isFinite(bDate)) return -1;
       return bDate - aDate;
     }
-    if (sortValue === "name-asc") return compareText(a.name, b.name);
-    if (sortValue === "plate-asc") return compareText(a.plate, b.plate);
-    if (sortValue === "id-asc") return compareText(a.id, b.id);
-    return earliestDateValue(a, dateFields) - earliestDateValue(b, dateFields);
+    if (sortValue === "date-asc") {
+      const aDate = earliestDateValue(a, dateFields);
+      const bDate = earliestDateValue(b, dateFields);
+      if (!Number.isFinite(aDate)) return 1;
+      if (!Number.isFinite(bDate)) return -1;
+      return aDate - bDate;
+    }
+
+    let field = sortValue;
+    let dir = "asc";
+    const lastDash = sortValue.lastIndexOf("-");
+    if (lastDash !== -1) {
+      const potentialDir = sortValue.slice(lastDash + 1);
+      if (potentialDir === "asc" || potentialDir === "desc") {
+        field = sortValue.slice(0, lastDash);
+        dir = potentialDir;
+      }
+    }
+
+    if (allDateFields.has(field)) {
+      const aVal = dateSortValue(a[field]);
+      const bVal = dateSortValue(b[field]);
+      if (aVal === bVal) return 0;
+      return dir === "asc" ? aVal - bVal : bVal - aVal;
+    } else {
+      const aVal = a[field];
+      const bVal = b[field];
+      return dir === "asc" ? compareText(aVal, bVal) : compareText(bVal, aVal);
+    }
   });
   return sorted;
 }
 
 function sortViolations(rows, sortValue) {
   const sorted = [...rows];
+  const allDateFields = new Set(["violationdate", "paiddate"]);
+
   sorted.sort((a, b) => {
-    if (sortValue === "date-asc") return dateSortValue(a.violationdate) - dateSortValue(b.violationdate);
+    if (sortValue === "date-desc") {
+      const aDate = dateSortValue(a.violationdate);
+      const bDate = dateSortValue(b.violationdate);
+      if (!Number.isFinite(aDate)) return 1;
+      if (!Number.isFinite(bDate)) return -1;
+      return bDate - aDate;
+    }
+    if (sortValue === "date-asc") {
+      const aDate = dateSortValue(a.violationdate);
+      const bDate = dateSortValue(b.violationdate);
+      if (!Number.isFinite(aDate)) return 1;
+      if (!Number.isFinite(bDate)) return -1;
+      return aDate - bDate;
+    }
     if (sortValue === "amount-desc") return amountValue(b.amount) - amountValue(a.amount);
     if (sortValue === "amount-asc") return amountValue(a.amount) - amountValue(b.amount);
-    if (sortValue === "status-asc") return compareText(a.status, b.status);
-    const aDate = dateSortValue(a.violationdate);
-    const bDate = dateSortValue(b.violationdate);
-    if (!Number.isFinite(aDate)) return 1;
-    if (!Number.isFinite(bDate)) return -1;
-    return bDate - aDate;
+
+    let field = sortValue;
+    let dir = "asc";
+    const lastDash = sortValue.lastIndexOf("-");
+    if (lastDash !== -1) {
+      const potentialDir = sortValue.slice(lastDash + 1);
+      if (potentialDir === "asc" || potentialDir === "desc") {
+        field = sortValue.slice(0, lastDash);
+        dir = potentialDir;
+      }
+    } else {
+      if (field === "violationdate" || field === "amount" || field === "paiddate") {
+        dir = "desc";
+      }
+    }
+
+    if (field === "amount") {
+      return dir === "asc" ? amountValue(a.amount) - amountValue(b.amount) : amountValue(b.amount) - amountValue(a.amount);
+    }
+    if (allDateFields.has(field)) {
+      const aVal = dateSortValue(a[field]);
+      const bVal = dateSortValue(b[field]);
+      if (aVal === bVal) return 0;
+      return dir === "asc" ? aVal - bVal : bVal - aVal;
+    } else {
+      const aVal = a[field];
+      const bVal = b[field];
+      return dir === "asc" ? compareText(aVal, bVal) : compareText(bVal, aVal);
+    }
   });
   return sorted;
 }
@@ -722,8 +793,208 @@ function findDriverByName(name) {
   return loadDrivers().find((driver) => (driver.name || "").trim().toLowerCase() === normalized) || null;
 }
 
+function printDetail() {
+  const title = document.getElementById("record-detail-title").textContent;
+  const subtitle = document.getElementById("record-detail-subtitle").textContent;
+  const body = document.getElementById("record-detail-body").innerHTML;
+
+  const printWindow = window.open("", "_blank", "width=850,height=900");
+  if (!printWindow) {
+    alert("Please allow popups to print or export details.");
+    return;
+  }
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 30px;
+            color: #1a1915;
+            background: #ffffff;
+            line-height: 1.4;
+          }
+          .header {
+            margin-bottom: 24px;
+            border-bottom: 2px solid #1a3a2a;
+            padding-bottom: 12px;
+          }
+          .title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a3a2a;
+          }
+          .subtitle {
+            font-size: 13px;
+            color: #6b6960;
+            margin-top: 4px;
+          }
+          .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+          }
+          .detail-field {
+            border: 1px solid #e8e6df;
+            border-radius: 8px;
+            background: #f9f8f5;
+            padding: 10px 12px;
+          }
+          .detail-label {
+            color: #9e9b91;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 4px;
+          }
+          .detail-value {
+            font-size: 13px;
+            color: #1a1915;
+            font-weight: 500;
+            word-break: break-word;
+          }
+          .detail-section {
+            margin-top: 24px;
+          }
+          .detail-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a3a2a;
+            border-bottom: 1px solid #e8e6df;
+            padding-bottom: 4px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+          }
+          .detail-mini-table-wrap {
+            border: 1px solid #e8e6df;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .detail-mini-table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .detail-mini-table th {
+            background: #f9f8f5;
+            color: #9e9b91;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e8e6df;
+            text-align: left;
+            letter-spacing: .05em;
+          }
+          .detail-mini-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e8e6df;
+            font-size: 12px;
+          }
+          .detail-mini-table tr:last-child td {
+            border-bottom: none;
+          }
+          .detail-empty {
+            color: #9e9b91;
+            font-style: italic;
+            padding: 10px;
+            border: 1px dashed #d4d1c8;
+            border-radius: 8px;
+            background: #f9f8f5;
+            font-size: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="title">${title}</div>
+          <div class="subtitle">${subtitle}</div>
+        </div>
+        ${body}
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function downloadDetailPDF() {
+  printDetail();
+}
+
+function downloadDetailExcel() {
+  const title = document.getElementById("record-detail-title").textContent;
+  const subtitle = document.getElementById("record-detail-subtitle").textContent;
+
+  const data = [];
+  data.push([title]);
+  if (subtitle) data.push([subtitle]);
+  data.push([]);
+  data.push(["Field", "Value"]);
+
+  const fields = document.querySelectorAll("#record-detail-body .detail-field");
+  fields.forEach(field => {
+    const labelEl = field.querySelector(".detail-label");
+    const valEl = field.querySelector(".detail-value");
+    if (labelEl && valEl) {
+      data.push([labelEl.textContent.trim(), valEl.textContent.trim()]);
+    }
+  });
+
+  const sections = document.querySelectorAll("#record-detail-body .detail-section");
+  sections.forEach(sec => {
+    const secTitleEl = sec.querySelector(".detail-section-title");
+    const secTitle = secTitleEl ? secTitleEl.textContent.trim() : "Section";
+    data.push([]);
+    data.push([secTitle]);
+
+    const table = sec.querySelector("table");
+    if (table) {
+      const headers = [];
+      table.querySelectorAll("th").forEach(th => headers.push(th.textContent.trim()));
+      data.push(headers);
+
+      table.querySelectorAll("tbody tr").forEach(tr => {
+        const row = [];
+        tr.querySelectorAll("td").forEach(td => row.push(td.textContent.trim()));
+        data.push(row);
+      });
+    } else {
+      const emptyEl = sec.querySelector(".detail-empty");
+      const empty = emptyEl ? emptyEl.textContent.trim() : "No records found.";
+      data.push([empty]);
+    }
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "Details");
+  XLSX.writeFile(wb, `${title.replace(/[^a-zA-Z0-9]/g, "_")}_Details.xlsx`);
+}
+
 function detailActionButtons(editCall) {
-  return `<button class="btn-cancel" onclick="closeModal('record-detail-modal')">Cancel</button>
+  return `
+    <div style="display: flex; gap: 8px; margin-right: auto; flex-wrap: wrap;">
+      <button class="btn-export" onclick="downloadDetailPDF()" style="padding: 7px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg> PDF
+      </button>
+      <button class="btn-export" onclick="downloadDetailExcel()" style="padding: 7px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 12H9v-2h3v-2H9V9h3V7H7v10h5v-2z"/></svg> Excel
+      </button>
+      <button class="btn-export" onclick="printDetail()" style="padding: 7px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px;"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Print
+      </button>
+    </div>
+    <button class="btn-cancel" onclick="closeModal('record-detail-modal')">Cancel</button>
     <button class="btn-save" onclick="closeModal('record-detail-modal'); ${editCall}">Edit</button>`;
 }
 
@@ -812,6 +1083,7 @@ function showVehicleDetails(idx) {
       ["Year", textValue(vehicle.year)],
       ["Color", textValue(vehicle.color)],
       ["Vehicle Type", textValue(vehicle.type)],
+      ["Car Type", textValue(vehicle.cartype)],
       ["Assigned Driver", textValue(vehicle.driver)],
       ["Insurance Expiry", dateValue(vehicle.insurance)],
       ["Ishtamara Expiry", dateValue(vehicle.ishtamara)],
@@ -866,6 +1138,7 @@ function showEmployeeDetails(idx) {
       ["Date of Birth", dateValue(employee.dateofbirth)],
       ["Iqama No.", textValue(employee.iqama)],
       ["Company", textValue(employee.company)],
+      ["Nationality", textValue(employee.nationality)],
       ["Occupation", textValue(employee.occupation)],
       ["Date of Contract", dateValue(employee.contractstart)],
       ["End of Contract", dateValue(employee.contractend)],
@@ -1231,14 +1504,26 @@ function renderVehicles() {
     document.getElementById("vehicle-search")?.value || ""
   ).toLowerCase();
   const sortValue = document.getElementById("vehicle-sort")?.value || "date-asc";
-  const vehicles = sortRecords(loadVehicles().filter(
-    (v) =>
+  const carTypeFilter = document.getElementById("vehicle-cartype-filter")?.value || "";
+
+  const filteredVehicles = loadVehicles().filter((v) => {
+    const matchesSearch =
       (v.plate || "").toLowerCase().includes(q) ||
       (v.id || "").toLowerCase().includes(q) ||
       (v.make || "").toLowerCase().includes(q) ||
       (v.operationcardno || "").toLowerCase().includes(q) ||
-      (v.driver || "").toLowerCase().includes(q)
-  ), sortValue, VEHICLE_FIELDS);
+      (v.driver || "").toLowerCase().includes(q);
+
+    if (!matchesSearch) return false;
+
+    if (carTypeFilter && (v.cartype || "") !== carTypeFilter) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const vehicles = sortRecords(filteredVehicles, sortValue, VEHICLE_FIELDS);
   if (vehicles.length === 0) {
     document.getElementById("vehicles-table").innerHTML =
       '<div class="empty">No vehicles found.</div>' +
@@ -1248,7 +1533,11 @@ function renderVehicles() {
   let html = `<table><thead><tr>
     <th>ID</th>
     <th>Vehicle</th>
+    <th>Car Type</th>
     <th>Driver</th>
+
+
+
     <th>Insurance</th>
     <th>Ishtamara</th>
     <th>Tafweed</th>
@@ -1277,6 +1566,7 @@ function renderVehicles() {
         <div style="font-size:11px;color:var(--text3)">${v.make || ""} ${v.year ? "· " + v.year : ""
       } ${v.color ? "· " + v.color : ""}</div>
       </td>
+      <td style="color:var(--text2);font-size:13px">${v.cartype || "—"}</td>
       <td style="color:var(--text2);font-size:13px">${v.driver || "—"}</td>
       ${["insurance", "ishtamara", "tafweed"].map((f) => {
         const days = daysUntil(v[f]);
@@ -1440,6 +1730,7 @@ function openVehicleModal(idx = -1) {
   document.getElementById("v-year").value = v.year || "";
   document.getElementById("v-color").value = v.color || "";
   document.getElementById("v-type").value = v.type || "";
+  document.getElementById("v-cartype").value = v.cartype || "";
   populateAssignedDriverOptions(v.driver || "");
   document.getElementById("v-insurance").value = v.insurance || "";
   document.getElementById("v-ishtamara").value = v.ishtamara || "";
@@ -1489,6 +1780,7 @@ async function saveVehicle() {
       year: document.getElementById("v-year").value.trim(),
       color: document.getElementById("v-color").value.trim(),
       type: document.getElementById("v-type").value,
+      cartype: document.getElementById("v-cartype").value,
       driver: document.getElementById("v-driver").value,
       insurance: document.getElementById("v-insurance").value,
       ishtamara: document.getElementById("v-ishtamara").value,
@@ -1546,22 +1838,40 @@ function renderEmployees() {
     document.getElementById("employee-search")?.value || ""
   ).toLowerCase();
   const sortValue = document.getElementById("employee-sort")?.value || "date-asc";
-  const employees = sortRecords(loadEmployees().filter(
-    (e) =>
+  const natFilter = document.getElementById("employee-nat-filter")?.value || "";
+
+  const filteredEmployees = loadEmployees().filter((e) => {
+    const matchesSearch =
       (e.id || "").toLowerCase().includes(q) ||
       (e.name || "").toLowerCase().includes(q) ||
       (e.iqama || "").includes(q) ||
+      (e.nationality || "").toLowerCase().includes(q) ||
       (e.occupation || "").toLowerCase().includes(q) ||
       (e.company || "").toLowerCase().includes(q) ||
-      (e.mobile || "").includes(q)
-  ), sortValue, EMPLOYEE_FIELDS);
+      (e.mobile || "").includes(q);
+
+    if (!matchesSearch) return false;
+
+    if (natFilter) {
+      const isSaudi = (e.nationality || "").trim().toLowerCase() === "saudi";
+      if (natFilter === "saudi") {
+        return isSaudi;
+      } else if (natFilter === "non-saudi") {
+        return !isSaudi;
+      }
+    }
+
+    return true;
+  });
+
+  const employees = sortRecords(filteredEmployees, sortValue, EMPLOYEE_FIELDS);
   let html = `<table><thead><tr>
     <th>Employee ID</th>
     <th>Name</th>
     <th>Mobile Number</th>
     <th>Date of Birth</th>
     <th>Iqama No.</th>
-    <th>Company</th>
+    <th>Company</th><th>Nationality</th>
     <th>Occupation</th>
     <th>Date of Contract</th>
     <th>End of Contract</th>
@@ -1572,7 +1882,7 @@ function renderEmployees() {
     <th>Actions</th>
   </tr></thead><tbody>`;
   if (employees.length === 0) {
-    html += `<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
+    html += `<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:32px">No employees found.</td></tr>`;
     html += "</tbody></table>";
     document.getElementById("employees-table").innerHTML =
       html + documentSummaryHtml("Employees", loadEmployees(), EMPLOYEE_FIELDS);
@@ -1598,7 +1908,7 @@ function renderEmployees() {
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.mobile || "—"}</td>
       <td><div class="date-sub">${fmtDate(e.dateofbirth)}</div></td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${e.iqama || "—"}</td>
-      <td style="color:var(--text2);font-size:13px">${e.company || "—"}</td>
+      <td style="color:var(--text2);font-size:13px">${e.company || "—"}</td><td style="color:var(--text2);font-size:13px">${e.nationality || "—"}</td>
       <td style="color:var(--text2);font-size:13px">${e.occupation || "—"}</td>
       <td><div class="date-sub">${fmtDate(e.contractstart)}</div></td>
       <td>${statusLabel(daysUntil(e.contractend))}<div class="date-sub">${fmtDate(e.contractend)}</div></td>
@@ -1638,6 +1948,7 @@ function openEmployeeModal(idx = -1) {
   document.getElementById("e-dateofbirth").value = e.dateofbirth || "";
   document.getElementById("e-iqama").value = e.iqama || "";
   document.getElementById("e-company").value = e.company || "";
+  document.getElementById("e-nationality").value = e.nationality || "";
   document.getElementById("e-occupation").value = e.occupation || "";
   document.getElementById("e-contractstart").value = e.contractstart || "";
   document.getElementById("e-contractend").value = e.contractend || "";
@@ -1693,6 +2004,7 @@ async function saveEmployee() {
       dateofbirth: document.getElementById("e-dateofbirth").value,
       iqama: document.getElementById("e-iqama").value.trim(),
       company: document.getElementById("e-company").value.trim(),
+      nationality: document.getElementById("e-nationality").value.trim(),
       occupation: document.getElementById("e-occupation").value.trim(),
       contractstart: document.getElementById("e-contractstart").value,
       contractend: document.getElementById("e-contractend").value,

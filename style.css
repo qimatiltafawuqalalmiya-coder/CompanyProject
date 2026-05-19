@@ -1381,14 +1381,15 @@ tr.clickable-row:hover td {
   #vehicles-table td:first-child::before { display: none; }
   #vehicles-table td:nth-child(2) { grid-column: 1 / -1; }
   #vehicles-table td:nth-child(2)::before  { content: "Vehicle"; }
-  #vehicles-table td:nth-child(3)::before  { content: "Driver"; }
-  #vehicles-table td:nth-child(4)::before  { content: "Insurance"; }
-  #vehicles-table td:nth-child(5)::before  { content: "Ishtamara"; }
-  #vehicles-table td:nth-child(6)::before  { content: "Tafweed"; }
-  #vehicles-table td:nth-child(7)::before  { content: "Op. Card No."; }
-  #vehicles-table td:nth-child(8)::before  { content: "Op. Card"; }
-  #vehicles-table td:nth-child(9)::before  { content: "Fahas"; }
-  #vehicles-table td:nth-child(10)::before { content: "GPS"; }
+  #vehicles-table td:nth-child(3)::before  { content: "Car Type"; }
+  #vehicles-table td:nth-child(4)::before  { content: "Driver"; }
+  #vehicles-table td:nth-child(5)::before  { content: "Insurance"; }
+  #vehicles-table td:nth-child(6)::before  { content: "Ishtamara"; }
+  #vehicles-table td:nth-child(7)::before  { content: "Tafweed"; }
+  #vehicles-table td:nth-child(8)::before  { content: "Op. Card No."; }
+  #vehicles-table td:nth-child(9)::before  { content: "Op. Card"; }
+  #vehicles-table td:nth-child(10)::before { content: "Fahas"; }
+  #vehicles-table td:nth-child(11)::before { content: "GPS"; }
 
   /* ── EMPLOYEE columns ── */
   #employees-table td:first-child::before { display: none; }
@@ -1398,13 +1399,14 @@ tr.clickable-row:hover td {
   #employees-table td:nth-child(4)::before  { content: "Date of Birth"; }
   #employees-table td:nth-child(5)::before  { content: "Iqama No."; }
   #employees-table td:nth-child(6)::before  { content: "Company"; }
-  #employees-table td:nth-child(7)::before  { content: "Occupation"; }
-  #employees-table td:nth-child(8)::before  { content: "Contract Start"; }
-  #employees-table td:nth-child(9)::before  { content: "Contract End"; }
-  #employees-table td:nth-child(10)::before { content: "Iqama Expiry"; }
-  #employees-table td:nth-child(11)::before { content: "Medical Ins."; }
-  #employees-table td:nth-child(12)::before { content: "Ajeer"; }
-  #employees-table td:nth-child(13)::before { content: "Passport"; }
+  #employees-table td:nth-child(7)::before  { content: "Nationality"; }
+  #employees-table td:nth-child(8)::before  { content: "Occupation"; }
+  #employees-table td:nth-child(9)::before  { content: "Contract Start"; }
+  #employees-table td:nth-child(10)::before { content: "Contract End"; }
+  #employees-table td:nth-child(11)::before { content: "Iqama Expiry"; }
+  #employees-table td:nth-child(12)::before { content: "Medical Ins."; }
+  #employees-table td:nth-child(13)::before { content: "Ajeer"; }
+  #employees-table td:nth-child(14)::before { content: "Passport"; }
 
   /* ── VIOLATIONS columns ── */
   #maroor-violations-table td:first-child::before,

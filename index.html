@@ -136,10 +136,26 @@
               <option value="owned">Owned</option>
             </select>
             <select class="table-filter" id="driver-sort" onchange="renderDrivers()" title="Sort drivers">
-              <option value="date-asc">Nearest Date</option>
-              <option value="date-desc">Latest Date</option>
-              <option value="name-asc">Name A-Z</option>
-              <option value="id-asc">ID A-Z</option>
+              <option value="date-asc">Nearest Expiry Date</option>
+              <option value="date-desc">Latest Expiry Date</option>
+              <option value="id">Employee ID</option>
+              <option value="name">Name</option>
+              <option value="iqamaid">Iqama ID No.</option>
+              <option value="phone">Phone Number</option>
+              <option value="nationality">Nationality</option>
+              <option value="dept">Department</option>
+              <option value="company">Company</option>
+              <option value="registrationno">Registration No.</option>
+              <option value="responsible">Responsible Person</option>
+              <option value="drivertype">Driver Type</option>
+              <option value="iqama">Iqama Expiry</option>
+              <option value="workpermit">Work Permit Expiry</option>
+              <option value="license">Driving Licence Expiry</option>
+              <option value="insurance">Insurance Expiry</option>
+              <option value="drivercardno">Driver Card No.</option>
+              <option value="drivercard">Driver Card Expiry</option>
+              <option value="ajeer">Ajeer Expiry</option>
+              <option value="passport">Passport Expiry</option>
             </select>
             <button class="btn-add" onclick="openDriverModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -181,11 +197,30 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by plate, driver, operation card…"
               oninput="renderVehicles()" id="vehicle-search">
+            <select class="table-filter" id="vehicle-cartype-filter" onchange="renderVehicles()" title="Filter by car type">
+              <option value="">All Car Types</option>
+              <option value="Private">Private</option>
+              <option value="Public">Public</option>
+              <option value="White Plate">White Plate</option>
+              <option value="Big Bus">Big Bus</option>
+            </select>
             <select class="table-filter" id="vehicle-sort" onchange="renderVehicles()" title="Sort vehicles">
-              <option value="date-asc">Nearest Date</option>
-              <option value="date-desc">Latest Date</option>
-              <option value="plate-asc">Plate A-Z</option>
-              <option value="id-asc">ID A-Z</option>
+              <option value="date-asc">Nearest Expiry Date</option>
+              <option value="date-desc">Latest Expiry Date</option>
+              <option value="id">Vehicle ID</option>
+              <option value="plate">Plate Number</option>
+              <option value="make">Make / Model</option>
+              <option value="year">Year</option>
+              <option value="color">Color</option>
+              <option value="type">Vehicle Type</option>
+              <option value="driver">Assigned Driver</option>
+              <option value="insurance">Insurance Expiry</option>
+              <option value="ishtamara">Ishtamara Expiry</option>
+              <option value="tafweed">Tafweed Expiry</option>
+              <option value="operationcardno">Operation Card No.</option>
+              <option value="operationcardexpiry">Operation Card Expiry</option>
+              <option value="fahas">Fahas Expiry</option>
+              <option value="gps">GPS Status</option>
             </select>
             <button class="btn-add" onclick="openVehicleModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -227,11 +262,28 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by name, Iqama, company, occupation…"
               oninput="renderEmployees()" id="employee-search">
+            <select class="table-filter" id="employee-nat-filter" onchange="renderEmployees()" title="Filter by nationality">
+              <option value="">All Nationalities</option>
+              <option value="saudi">Saudi</option>
+              <option value="non-saudi">Non-Saudi</option>
+            </select>
             <select class="table-filter" id="employee-sort" onchange="renderEmployees()" title="Sort employees">
-              <option value="date-asc">Nearest Date</option>
-              <option value="date-desc">Latest Date</option>
-              <option value="name-asc">Name A-Z</option>
-              <option value="id-asc">ID A-Z</option>
+              <option value="date-asc">Nearest Expiry Date</option>
+              <option value="date-desc">Latest Expiry Date</option>
+              <option value="id">Employee ID</option>
+              <option value="name">Name</option>
+              <option value="mobile">Mobile Number</option>
+              <option value="dateofbirth">Date of Birth</option>
+              <option value="iqama">Iqama No.</option>
+              <option value="company">Company</option>
+              <option value="nationality">Nationality</option>
+              <option value="occupation">Occupation</option>
+              <option value="contractstart">Date of Contract</option>
+              <option value="contractend">End of Contract</option>
+              <option value="iqamaexpiry">Iqama Expiry</option>
+              <option value="insurance">Medical Insurance Expiry</option>
+              <option value="ajeer">Ajeer Expiry</option>
+              <option value="passport">Passport Expiry</option>
             </select>
             <button class="btn-add" onclick="openEmployeeModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -274,11 +326,17 @@
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderMaroorViolations()" id="maroor-violation-search">
             <select class="table-filter" id="maroor-violation-sort" onchange="renderMaroorViolations()" title="Sort Maroor violations">
-              <option value="date-desc">Newest Date</option>
-              <option value="date-asc">Oldest Date</option>
-              <option value="amount-desc">Amount High-Low</option>
-              <option value="amount-asc">Amount Low-High</option>
-              <option value="status-asc">Status A-Z</option>
+              <option value="violationdate">Violation Date</option>
+              <option value="amount">Amount</option>
+              <option value="status">Status</option>
+              <option value="id">Violation ID</option>
+              <option value="violationno">Violation No.</option>
+              <option value="plate">Plate Number</option>
+              <option value="driver">Driver Name</option>
+              <option value="referenceno">Reference No.</option>
+              <option value="city">City</option>
+              <option value="violationtime">Time Of Violation</option>
+              <option value="paiddate">Date Paid</option>
             </select>
             <button class="btn-add" onclick="openMaroorViolationModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -310,11 +368,17 @@
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderEfaaViolations()" id="efaa-violation-search">
             <select class="table-filter" id="efaa-violation-sort" onchange="renderEfaaViolations()" title="Sort Efaa violations">
-              <option value="date-desc">Newest Date</option>
-              <option value="date-asc">Oldest Date</option>
-              <option value="amount-desc">Amount High-Low</option>
-              <option value="amount-asc">Amount Low-High</option>
-              <option value="status-asc">Status A-Z</option>
+              <option value="violationdate">Violation Date</option>
+              <option value="amount">Amount</option>
+              <option value="status">Status</option>
+              <option value="id">Violation ID</option>
+              <option value="violationno">Violation No.</option>
+              <option value="plate">Plate Number</option>
+              <option value="driver">Driver Name</option>
+              <option value="referenceno">Reference No.</option>
+              <option value="city">City</option>
+              <option value="violationtime">Time Of Violation</option>
+              <option value="paiddate">Date Paid</option>
             </select>
             <button class="btn-add" onclick="openEfaaViolationModal()">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -421,6 +485,15 @@
             <option>Heavy Equipment</option>
           </select>
         </div>
+        <div class="modal-group"><label>Car Type</label>
+          <select id="v-cartype">
+            <option value="">Select car type</option>
+            <option value="Private">Private</option>
+            <option value="Public">Public</option>
+            <option value="White Plate">White Plate</option>
+            <option value="Big Bus">Big Bus</option>
+          </select>
+        </div>
         <div class="modal-group full"><label>Assigned Driver</label>
           <select id="v-driver"></select>
         </div>
@@ -470,7 +543,8 @@
         <div class="modal-group"><label>Date of Birth</label><input type="date" id="e-dateofbirth"></div>
         <div class="modal-group"><label>Iqama No.</label><input id="e-iqama" placeholder="e.g. 2456789012"></div>
         <div class="modal-group"><label>Company</label><input id="e-company" placeholder="Company name"></div>
-        <div class="modal-group full"><label>Occupation</label><input id="e-occupation"
+        <div class="modal-group"><label>Nationality</label><input id="e-nationality" placeholder="e.g. Saudi, Indian"></div>
+        <div class="modal-group"><label>Occupation</label><input id="e-occupation"
             placeholder="e.g. Technician, Supervisor"></div>
 
         <div class="modal-section-title">Employment Dates</div>
@@ -582,7 +656,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
   <script>
     function toggleMobileNav() {
       const nav = document.getElementById('sidebar-nav');

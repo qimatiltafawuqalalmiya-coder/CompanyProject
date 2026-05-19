@@ -57,6 +57,7 @@ create table if not exists employees (
   dateofbirth date,
   iqama text,
   company text,
+  nationality text,
   occupation text,
   contractstart date,
   contractend date,
@@ -68,6 +69,7 @@ create table if not exists employees (
 
 alter table employees add column if not exists dateofbirth date;
 alter table employees add column if not exists company text;
+alter table employees add column if not exists nationality text;
 alter table employees add column if not exists contractstart date;
 alter table employees add column if not exists contractend date;
 alter table employees add column if not exists ajeer date;
@@ -134,3 +136,6 @@ grant select, insert, update, delete on vehicles to anon, authenticated;
 grant select, insert, update, delete on employees to anon, authenticated;
 grant select, insert, update, delete on maroor_violations to anon, authenticated;
 grant select, insert, update, delete on efaa_violations to anon, authenticated;
+
+-- Added cartype column to vehicles table
+alter table vehicles add column if not exists cartype text;
