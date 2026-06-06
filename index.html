@@ -44,8 +44,11 @@
     <div class="sidebar">
       <div class="sidebar-logo">
         <img class="brand-logo brand-logo-sidebar" src="assets/logo.png" alt="Qima Al Tafawuq logo">
-        <button class="mobile-menu-toggle" id="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" onclick="toggleMobileNav()"
+          aria-label="Toggle navigation">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
         </button>
       </div>
       <nav class="sidebar-nav" id="sidebar-nav">
@@ -129,7 +132,8 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by name, ID, nationality…"
               oninput="renderDrivers()" id="driver-search">
-            <select class="table-filter" id="driver-type-filter" onchange="renderDrivers()" title="Filter by driver type">
+            <select class="table-filter" id="driver-type-filter" onchange="renderDrivers()"
+              title="Filter by driver type">
               <option value="">All Types</option>
               <option value="service">Services</option>
               <option value="outsource">Outsource</option>
@@ -197,7 +201,8 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by plate, driver, operation card…"
               oninput="renderVehicles()" id="vehicle-search">
-            <select class="table-filter" id="vehicle-cartype-filter" onchange="renderVehicles()" title="Filter by car type">
+            <select class="table-filter" id="vehicle-cartype-filter" onchange="renderVehicles()"
+              title="Filter by car type">
               <option value="">All Car Types</option>
               <option value="Private">Private</option>
               <option value="Public">Public</option>
@@ -262,7 +267,8 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by name, Iqama, company, occupation…"
               oninput="renderEmployees()" id="employee-search">
-            <select class="table-filter" id="employee-nat-filter" onchange="renderEmployees()" title="Filter by nationality">
+            <select class="table-filter" id="employee-nat-filter" onchange="renderEmployees()"
+              title="Filter by nationality">
               <option value="">All Nationalities</option>
               <option value="saudi">Saudi</option>
               <option value="non-saudi">Non-Saudi</option>
@@ -325,7 +331,8 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderMaroorViolations()" id="maroor-violation-search">
-            <select class="table-filter" id="maroor-violation-sort" onchange="renderMaroorViolations()" title="Sort Maroor violations">
+            <select class="table-filter" id="maroor-violation-sort" onchange="renderMaroorViolations()"
+              title="Sort Maroor violations">
               <option value="violationdate">Violation Date</option>
               <option value="amount">Amount</option>
               <option value="status">Status</option>
@@ -367,7 +374,8 @@
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Search by violation, plate, driver..."
               oninput="renderEfaaViolations()" id="efaa-violation-search">
-            <select class="table-filter" id="efaa-violation-sort" onchange="renderEfaaViolations()" title="Sort Efaa violations">
+            <select class="table-filter" id="efaa-violation-sort" onchange="renderEfaaViolations()"
+              title="Sort Efaa violations">
               <option value="violationdate">Violation Date</option>
               <option value="amount">Amount</option>
               <option value="status">Status</option>
@@ -543,7 +551,8 @@
         <div class="modal-group"><label>Date of Birth</label><input type="date" id="e-dateofbirth"></div>
         <div class="modal-group"><label>Iqama No.</label><input id="e-iqama" placeholder="e.g. 2456789012"></div>
         <div class="modal-group"><label>Company</label><input id="e-company" placeholder="Company name"></div>
-        <div class="modal-group"><label>Nationality</label><input id="e-nationality" placeholder="e.g. Saudi, Indian"></div>
+        <div class="modal-group"><label>Nationality</label><input id="e-nationality" placeholder="e.g. Saudi, Indian">
+        </div>
         <div class="modal-group"><label>Occupation</label><input id="e-occupation"
             placeholder="e.g. Technician, Supervisor"></div>
 
@@ -582,8 +591,12 @@
         <div class="modal-group"><label>Violation ID</label><input id="mrv-id" placeholder="e.g. MRV001"></div>
         <div class="modal-group"><label>Violation No.</label><input id="mrv-violationno" placeholder="Violation number">
         </div>
-        <div class="modal-group"><label>Plate Number *</label><select id="mrv-plate"><option value="">Select plate...</option></select></div>
-        <div class="modal-group"><label>Driver *</label><select id="mrv-driver"><option value="">Select driver...</option></select></div>
+        <div class="modal-group"><label>Plate Number *</label><select id="mrv-plate">
+            <option value="">Select plate...</option>
+          </select></div>
+        <div class="modal-group"><label>Driver *</label><select id="mrv-driver">
+            <option value="">Select driver...</option>
+          </select></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="mrv-violationdate"></div>
         <div class="modal-group"><label>Time Of Violation</label><input type="time" id="mrv-violationtime"></div>
         <div class="modal-group"><label>Reference Violation No.</label><input id="mrv-referenceno"
@@ -625,8 +638,12 @@
         <div class="modal-group"><label>Violation ID</label><input id="efv-id" placeholder="e.g. EFV001"></div>
         <div class="modal-group"><label>Violation No.</label><input id="efv-violationno" placeholder="Violation number">
         </div>
-        <div class="modal-group"><label>Plate Number *</label><select id="efv-plate"><option value="">Select plate...</option></select></div>
-        <div class="modal-group"><label>Driver *</label><select id="efv-driver"><option value="">Select driver...</option></select></div>
+        <div class="modal-group"><label>Plate Number *</label><select id="efv-plate">
+            <option value="">Select plate...</option>
+          </select></div>
+        <div class="modal-group"><label>Driver *</label><select id="efv-driver">
+            <option value="">Select driver...</option>
+          </select></div>
         <div class="modal-group"><label>Violation Date</label><input type="date" id="efv-violationdate"></div>
         <div class="modal-group"><label>Time Of Violation</label><input type="time" id="efv-violationtime"></div>
         <div class="modal-group"><label>Reference Violation No.</label><input id="efv-referenceno"
