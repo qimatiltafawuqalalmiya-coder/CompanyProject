@@ -671,6 +671,18 @@ tr.clickable-row:hover td {
   color: var(--red);
 }
 
+.summary-amount-total strong {
+  color: var(--accent);
+}
+
+.summary-amount-paid strong {
+  color: var(--green);
+}
+
+.summary-amount-unpaid strong {
+  color: var(--red);
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

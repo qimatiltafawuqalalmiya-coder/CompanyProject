@@ -425,10 +425,16 @@ function documentSummaryHtml(label, records, fields) {
 function violationSummaryHtml(label, records) {
   const paid = records.filter((record) => record.status === "Paid").length;
   const unpaid = records.length - paid;
+  const totalAmount = records.reduce((sum, record) => sum + amountValue(record.amount), 0);
+  const paidAmount = records.filter((record) => record.status === "Paid").reduce((sum, record) => sum + amountValue(record.amount), 0);
+  const unpaidAmount = totalAmount - paidAmount;
   return `<div class="list-summary">
     <span>Total ${label}: <strong>${records.length}</strong></span>
     <span class="summary-valid">Paid: <strong>${paid}</strong></span>
     <span class="summary-invalid">Unpaid/Open: <strong>${unpaid}</strong></span>
+    <span class="summary-amount-total">Total Amount: <strong>${totalAmount.toLocaleString()} SAR</strong></span>
+    <span class="summary-amount-paid">Paid Amount: <strong>${paidAmount.toLocaleString()} SAR</strong></span>
+    <span class="summary-amount-unpaid">Unpaid Amount: <strong>${unpaidAmount.toLocaleString()} SAR</strong></span>
   </div>`;
 }
 function formatExportDate(value) {
